@@ -7,16 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- Firebase (banco de dados compartilhado — funciona em qualquer lugar que hospede este arquivo, não só dentro do Claude) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
-/* ======================================================================
-   VARIÁVEIS DE IDENTIDADE VISUAL
-   Paleta inspirada no Save the Date / Convite: azul serenity, off-white
-   e rosa quartzo. Tudo abaixo deriva destas variáveis — nada de cores
-   soltas no meio do código.
-   ====================================================================== */
 :root{
   --azul-serenity:      #8FA9C4;
   --azul-serenity-esc:  #6C8AAB;
@@ -24,7 +17,7 @@
   --off-white:          #F9F8F3;
   --rosa-quartzo:       #DCA498;
   --rosa-quartzo-esc:   #C67F71;
-  --tinta:              #46403A;   /* quase-preto quente, para texto */
+  --tinta:              #46403A;
   --tinta-suave:        #7A7369;
   --linha:              #E7E2D6;
   --branco:             #FFFFFF;
@@ -51,17 +44,11 @@ button{font-family:var(--sans);}
 img{max-width:100%;display:block;}
 a{color:inherit;}
 
-/* Foco visível para acessibilidade de teclado */
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
   outline:2px solid var(--azul-serenity-esc);
   outline-offset:2px;
 }
 
-/* ======================================================================
-   ELEMENTO-ASSINATURA: divisor floral em linha, usado como fio condutor
-   visual entre seções (hero, formulário, presentes, admin). É a peça
-   decorativa recorrente que amarra a identidade do convite.
-   ====================================================================== */
 .divisor-floral{
   display:flex;align-items:center;justify-content:center;gap:14px;
   margin:22px 0;color:var(--rosa-quartzo-esc);
@@ -70,9 +57,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .divisor-floral .traco{height:1px;width:56px;background:linear-gradient(90deg,transparent,var(--linha) 30%,var(--linha) 70%,transparent);}
 .divisor-floral svg{width:22px;height:22px;opacity:.85;}
 
-/* ======================================================================
-   LAYOUT GERAL
-   ====================================================================== */
 #app-shell{position:relative;min-height:100vh;}
 #app{min-height:100vh;}
 
@@ -82,10 +66,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   padding:36px 20px 60px;
 }
 
-.hero{
-  text-align:center;
-  padding-bottom:6px;
-}
+.hero{text-align:center;padding-bottom:6px;}
 .hero .monograma{
   font-family:var(--serif);
   font-style:italic;
@@ -101,10 +82,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   color:var(--tinta);
   line-height:1.15;
 }
-.hero h1 em{
-  font-style:italic;
-  color:var(--rosa-quartzo-esc);
-}
+.hero h1 em{font-style:italic;color:var(--rosa-quartzo-esc);}
 .hero .data-evento{
   font-size:13.5px;
   letter-spacing:1.5px;
@@ -120,9 +98,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin-left:auto;margin-right:auto;
 }
 
-/* ======================================================================
-   CARTÕES / FORMULÁRIOS
-   ====================================================================== */
 .cartao{
   background:var(--branco);
   border:1px solid var(--linha);
@@ -172,13 +147,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .radio-opcao:hover{border-color:var(--azul-serenity-cl);}
 .radio-opcao input{accent-color:var(--azul-serenity-esc);width:18px;height:18px;flex-shrink:0;}
-.radio-opcao.selecionada{
-  border-color:var(--azul-serenity-esc);
-  background:rgba(143,169,196,0.08);
-}
+.radio-opcao.selecionada{border-color:var(--azul-serenity-esc);background:rgba(143,169,196,0.08);}
 .radio-opcao span{font-size:14.5px;font-weight:500;}
 
-/* Botões */
 .botao{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   width:100%;
@@ -192,34 +163,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
 }
 .botao:active{transform:scale(0.98);}
-.botao-primario{
-  background:var(--azul-serenity-esc);
-  color:var(--branco);
-  box-shadow:0 8px 20px -8px rgba(108,138,171,0.65);
-}
+.botao-primario{background:var(--azul-serenity-esc);color:var(--branco);box-shadow:0 8px 20px -8px rgba(108,138,171,0.65);}
 .botao-primario:hover{background:var(--azul-serenity);}
-.botao-secundario{
-  background:var(--rosa-quartzo);
-  color:var(--branco);
-  box-shadow:0 8px 20px -8px rgba(198,127,113,0.55);
-}
+.botao-secundario{background:var(--rosa-quartzo);color:var(--branco);box-shadow:0 8px 20px -8px rgba(198,127,113,0.55);}
 .botao-secundario:hover{background:var(--rosa-quartzo-esc);}
-.botao-fantasma{
-  background:transparent;
-  color:var(--tinta-suave);
-  border:1.5px solid var(--linha);
-  box-shadow:none;
-}
+.botao-fantasma{background:transparent;color:var(--tinta-suave);border:1.5px solid var(--linha);box-shadow:none;}
 .botao-fantasma:hover{border-color:var(--rosa-quartzo);color:var(--rosa-quartzo-esc);}
 .botao-desabilitado, .botao:disabled{
-  background:var(--linha) !important;
-  color:var(--tinta-suave) !important;
-  box-shadow:none !important;
-  cursor:not-allowed;
+  background:var(--linha) !important;color:var(--tinta-suave) !important;box-shadow:none !important;cursor:not-allowed;
 }
 .botao-pequeno{width:auto;padding:9px 16px;font-size:12.5px;}
+a.botao{text-decoration:none;}
 
-/* Aviso informativo (sem transações financeiras) */
 .aviso{
   display:flex;gap:10px;align-items:flex-start;
   background:rgba(220,164,152,0.12);
@@ -231,29 +186,44 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   margin:16px 0 20px;
 }
 .aviso svg{flex-shrink:0;width:18px;height:18px;color:var(--rosa-quartzo-esc);margin-top:1px;}
-
-.aviso-ambiente{
-  background:rgba(230,168,54,0.14);
-  border-color:rgba(230,168,54,0.5);
-  color:#6B4E12;
-}
+.aviso-ambiente{background:rgba(230,168,54,0.14);border-color:rgba(230,168,54,0.5);color:#6B4E12;}
 .aviso-ambiente svg{color:#B8860B;}
 
-/* ======================================================================
-   LISTA DE PRESENTES
-   ====================================================================== */
-.secao-titulo{
-  font-size:21px;
-  font-weight:600;
-  text-align:center;
-  margin:6px 0 2px;
+.galeria-grid{
+  columns:2 170px;
+  column-gap:10px;
+  margin:18px 0;
 }
-.secao-legenda{
-  text-align:center;
-  font-size:13px;
-  color:var(--tinta-suave);
-  margin-bottom:4px;
+.galeria-item{
+  break-inside:avoid;
+  margin-bottom:10px;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--sombra-sm);
+  background:var(--azul-serenity-cl);
 }
+.galeria-item img{width:100%;display:block;}
+
+.galeria-admin-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(88px,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.galeria-admin-item{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--linha);aspect-ratio:1/1;}
+.galeria-admin-item img{width:100%;height:100%;object-fit:cover;}
+.galeria-admin-remover{
+  position:absolute;top:4px;right:4px;
+  width:22px;height:22px;
+  border-radius:50%;
+  border:none;
+  background:rgba(70,64,58,0.7);
+  color:#fff;
+  font-size:14px;line-height:1;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.galeria-admin-remover:hover{background:var(--rosa-quartzo-esc);}
 
 .grade-presentes{
   display:grid;
@@ -261,9 +231,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   gap:16px;
   margin-top:18px;
 }
-@media (min-width:600px){
-  .grade-presentes{grid-template-columns:1fr 1fr;}
-}
+@media (min-width:600px){.grade-presentes{grid-template-columns:1fr 1fr;}}
 
 .presente-card{
   background:var(--branco);
@@ -273,266 +241,95 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   box-shadow:var(--sombra-sm);
   display:flex;flex-direction:column;
 }
-.presente-foto{
-  width:100%;
-  aspect-ratio:4/3;
-  object-fit:cover;
-  background:var(--azul-serenity-cl);
-}
+.presente-foto{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--azul-serenity-cl);}
 .presente-corpo{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
 .presente-nome{font-size:15.5px;font-weight:600;line-height:1.3;}
-/* Faixa de preço: badge com "moedas" preenchidas conforme o nível (1-3),
-   em vez de um texto cru "R$ X - mais" solto no card. */
-.faixa-badge{
-  align-self:flex-start;
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:11.5px;
-  font-weight:600;
-  letter-spacing:.2px;
-  padding:5px 11px 5px 9px;
-  border-radius:999px;
-  border:1px solid transparent;
-}
-.faixa-moedas{display:inline-flex;gap:2px;}
-.faixa-moedas span{
-  width:6px;height:6px;border-radius:50%;
-  background:currentColor;opacity:.35;
-}
-.faixa-moedas span.acesa{opacity:1;}
-.faixa-nivel-1{color:var(--azul-serenity-esc);background:rgba(143,169,196,0.14);border-color:rgba(143,169,196,0.3);}
-.faixa-nivel-2{color:var(--rosa-quartzo-esc);background:rgba(220,164,152,0.18);border-color:rgba(220,164,152,0.35);}
-.faixa-nivel-3{color:#8A6A2E;background:rgba(218,175,90,0.20);border-color:rgba(218,175,90,0.4);}
-.presente-status{
-  font-size:12px;
-  font-weight:600;
-  padding:8px 10px;
-  border-radius:var(--raio-sm);
-  text-align:center;
-}
+.presente-status{font-size:12px;font-weight:600;padding:8px 10px;border-radius:var(--raio-sm);text-align:center;}
 .status-disponivel{color:var(--tinta-suave);}
-.status-reservado-outro{
-  background:rgba(70,64,58,0.06);
-  color:var(--tinta-suave);
-}
-.status-reservado-eu{
-  background:rgba(220,164,152,0.16);
-  color:var(--rosa-quartzo-esc);
-}
+.status-reservado-outro{background:rgba(70,64,58,0.06);color:var(--tinta-suave);}
+.status-reservado-eu{background:rgba(220,164,152,0.16);color:var(--rosa-quartzo-esc);}
 .presente-acoes{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:4px;}
 
-/* ======================================================================
-   RODAPÉ / ACESSO ADMIN
-   ====================================================================== */
-.rodape-admin{
-  text-align:center;
-  margin-top:36px;
-  padding-top:16px;
-  border-top:1px solid var(--linha);
-}
-.rodape-admin button{
-  background:none;border:none;
-  color:var(--tinta-suave);
-  font-size:11.5px;
-  letter-spacing:.4px;
-  cursor:pointer;
-  opacity:.55;
-  padding:6px;
-}
+.rodape-admin{text-align:center;margin-top:36px;padding-top:16px;border-top:1px solid var(--linha);}
+.rodape-admin button{background:none;border:none;color:var(--tinta-suave);font-size:11.5px;letter-spacing:.4px;cursor:pointer;opacity:.55;padding:6px;}
 .rodape-admin button:hover{opacity:1;color:var(--azul-serenity-esc);}
 
-/* ======================================================================
-   PAINEL DO ADMINISTRADOR (desktop-first)
-   ====================================================================== */
-.pagina-admin{
-  max-width:1180px;
-  margin:0 auto;
-  padding:32px 24px 70px;
-}
-.admin-topo{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:14px;
-  margin-bottom:24px;
-}
+.pagina-admin{max-width:1180px;margin:0 auto;padding:32px 24px 70px;}
+.admin-topo{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px;}
 .admin-topo h1{font-size:26px;margin:0;font-weight:600;}
 .admin-topo .subt{font-size:13px;color:var(--tinta-suave);margin-top:2px;}
 
-.admin-resumo{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:14px;
-  margin-bottom:26px;
-}
-.resumo-card{
-  background:var(--branco);
-  border:1px solid var(--linha);
-  border-radius:var(--raio-sm);
-  padding:16px 18px;
-  box-shadow:var(--sombra-sm);
-}
+.admin-resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px;}
+.resumo-card{background:var(--branco);border:1px solid var(--linha);border-radius:var(--raio-sm);padding:16px 18px;box-shadow:var(--sombra-sm);}
 .resumo-card .num{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--azul-serenity-esc);}
 .resumo-card .rot{font-size:11.5px;color:var(--tinta-suave);letter-spacing:.4px;text-transform:uppercase;margin-top:2px;}
 
-.admin-bloco{
-  background:var(--branco);
-  border:1px solid var(--linha);
-  border-radius:var(--raio);
-  box-shadow:var(--sombra-sm);
-  padding:22px 22px 26px;
-  margin-bottom:26px;
-}
-.admin-bloco-topo{
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:10px;
-  margin-bottom:16px;
-}
+.admin-bloco{background:var(--branco);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra-sm);padding:22px 22px 26px;margin-bottom:26px;}
+.admin-bloco-topo{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
 .admin-bloco-topo h2{font-size:17px;margin:0;font-weight:600;}
 
 .tabela-wrap{width:100%;overflow-x:auto;}
-table.planilha{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13.5px;
-  min-width:640px;
-}
+table.planilha{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;}
 table.planilha thead th{
-  text-align:left;
-  font-size:11px;
-  letter-spacing:.5px;
-  text-transform:uppercase;
-  color:var(--tinta-suave);
-  border-bottom:2px solid var(--linha);
-  padding:10px 12px;
-  white-space:nowrap;
+  text-align:left;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--tinta-suave);
+  border-bottom:2px solid var(--linha);padding:10px 12px;white-space:nowrap;
 }
-table.planilha tbody td{
-  padding:11px 12px;
-  border-bottom:1px solid var(--linha);
-  vertical-align:middle;
-}
+table.planilha tbody td{padding:11px 12px;border-bottom:1px solid var(--linha);vertical-align:middle;}
 table.planilha tbody tr:hover{background:rgba(143,169,196,0.06);}
-.tag{
-  display:inline-block;
-  font-size:11.5px;font-weight:600;
-  padding:4px 10px;border-radius:999px;
-}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px;}
 .tag-sim{background:rgba(143,169,196,0.18);color:var(--azul-serenity-esc);}
 .tag-nao{background:rgba(70,64,58,0.08);color:var(--tinta-suave);}
 .tag-livre{background:rgba(220,164,152,0.15);color:var(--rosa-quartzo-esc);}
 
-.form-inline{
-  display:grid;
-  grid-template-columns:1.6fr 1.5fr 1.1fr auto;
-  gap:10px;
-  align-items:end;
-}
-@media (max-width:900px){
-  .form-inline{grid-template-columns:1fr;}
-}
+.form-inline{display:grid;grid-template-columns:1.3fr 1.5fr auto;gap:10px;align-items:end;}
+@media (max-width:820px){.form-inline{grid-template-columns:1fr;}}
 .form-inline .campo{margin-bottom:0;}
 
-/* Upload de foto com miniatura de pré-visualização */
-.upload-foto{
-  display:flex;align-items:center;gap:10px;
-}
-.upload-foto .miniatura{
-  width:52px;height:52px;
-  border-radius:10px;
-  object-fit:cover;
-  border:1.5px solid var(--linha);
-  background:var(--azul-serenity-cl);
-  flex-shrink:0;
-}
-.upload-foto input[type="file"]{
-  font-size:12px;
-  width:100%;
-}
+.upload-foto{display:flex;align-items:center;gap:10px;}
+.upload-foto .miniatura{width:52px;height:52px;border-radius:10px;object-fit:cover;border:1.5px solid var(--linha);background:var(--azul-serenity-cl);flex-shrink:0;}
+.upload-foto input[type="file"]{font-size:12px;width:100%;}
 .upload-foto input[type="file"]::file-selector-button{
-  border:1.5px solid var(--linha);
-  background:var(--branco);
-  border-radius:999px;
-  padding:8px 12px;
-  font-size:11.5px;
-  font-weight:600;
-  color:var(--tinta-suave);
-  cursor:pointer;
-  margin-right:8px;
+  border:1.5px solid var(--linha);background:var(--branco);border-radius:999px;padding:8px 12px;
+  font-size:11.5px;font-weight:600;color:var(--tinta-suave);cursor:pointer;margin-right:8px;
 }
 
 .acoes-topo-direita{display:flex;gap:10px;flex-wrap:wrap;}
-
-.login-admin{
-  max-width:380px;margin:80px auto;
-  text-align:center;
-}
-
-.rodape-nota{
-  text-align:center;font-size:11.5px;color:var(--tinta-suave);margin-top:10px;
-}
-
+.rodape-nota{text-align:center;font-size:11.5px;color:var(--tinta-suave);margin-top:10px;}
 .oculto{display:none !important;}
 
-/* Pequena animação de entrada suave */
 .fade-in{animation:fadeIn .35s ease both;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@media (prefers-reduced-motion: reduce){.fade-in{animation:none;}}
 
-@media (prefers-reduced-motion: reduce){
-  .fade-in{animation:none;}
-}
-
-/* ======================================================================
-   MODAL E TOAST (substituem prompt()/alert()/confirm() nativos, que ficam
-   bloqueados dentro do iframe do artifact e fariam os botões parecerem
-   "sem função")
-   ====================================================================== */
 .modal-overlay{
-  position:absolute;inset:0;
-  min-height:100%;
+  position:fixed;inset:0;
   background:rgba(70,64,58,0.42);
-  display:flex;align-items:flex-start;justify-content:center;
+  display:flex;align-items:center;justify-content:center;
   padding:20px;
   z-index:1000;
   animation:fadeIn .18s ease both;
+  overflow-y:auto;
 }
-.modal-overlay .modal-caixa{margin-top:8vh;}
 .modal-caixa{
-  background:var(--branco);
-  border-radius:var(--raio);
-  box-shadow:var(--sombra);
-  padding:26px 24px;
-  max-width:360px;width:100%;
-  text-align:center;
+  background:var(--branco);border-radius:var(--raio);box-shadow:var(--sombra);
+  padding:26px 24px;max-width:360px;width:100%;text-align:center;
+  margin:auto;
 }
 .modal-caixa h3{margin:0 0 6px;font-size:19px;font-weight:600;}
 .modal-caixa p{margin:0 0 16px;font-size:13.5px;color:var(--tinta-suave);}
 .modal-caixa .campo{text-align:left;margin-bottom:16px;}
 .modal-botoes{display:flex;gap:10px;margin-top:4px;}
 .modal-botoes .botao{width:auto;flex:1;}
-.modal-erro-msg{
-  color:var(--rosa-quartzo-esc);
-  font-size:12.5px;
-  min-height:16px;
-  margin:-8px 0 12px;
-}
+.modal-erro-msg{color:var(--rosa-quartzo-esc);font-size:12.5px;min-height:16px;margin:-8px 0 12px;}
 
 #toast-container{
-  position:absolute;
-  top:16px;left:50%;
-  transform:translateX(-50%);
-  z-index:2000;
-  display:flex;flex-direction:column;gap:8px;
-  width:calc(100% - 32px);
-  max-width:400px;
-  pointer-events:none;
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  z-index:2000;display:flex;flex-direction:column;gap:8px;
+  width:calc(100% - 32px);max-width:400px;pointer-events:none;
 }
 .toast{
-  background:var(--tinta);
-  color:var(--branco);
-  font-size:13px;
-  font-weight:500;
-  padding:12px 16px;
-  border-radius:var(--raio-sm);
-  box-shadow:var(--sombra);
-  text-align:center;
+  background:var(--tinta);color:var(--branco);font-size:13px;font-weight:500;
+  padding:12px 16px;border-radius:var(--raio-sm);box-shadow:var(--sombra);text-align:center;
   animation:fadeIn .2s ease both;
 }
 .toast.toast-erro{background:var(--rosa-quartzo-esc);}
@@ -544,46 +341,15 @@ table.planilha tbody tr:hover{background:rgba(143,169,196,0.06);}
 </div>
 
 <script>
-/* =========================================================================
-   CHÁ DE PANELA — Fernanda & Matheus
-   Aplicação single-file (HTML + CSS + JS vanilla).
-
-   ARMAZENAMENTO
-   -------------
-   Os convidados abrem este link em celulares DIFERENTES (via WhatsApp).
-   Por isso, em vez de localStorage (que é isolado por aparelho e não
-   serviria para uma lista de presentes compartilhada), usamos o Firebase
-   Firestore — um banco de dados na nuvem, gratuito para este uso — como
-   fonte única de dados. Assim, quando alguém reserva um presente, todos
-   os outros convidados — e a noiva/administrador — veem a mesma
-   informação, de qualquer dispositivo, em qualquer lugar (GitHub Pages,
-   Firebase Hosting, Netlify, etc.).
-   IMPORTANTE: troque o objeto `firebaseConfig` logo abaixo pelos valores
-   do SEU projeto Firebase antes de publicar este arquivo.
-
-   "SESSÃO" DO CONVIDADO
-   ----------------------
-   Como não usamos cookies/localStorage, identificamos o convidado atual
-   pelo NOME que ele digita (é natural: é assim que ele se identifica na
-   lista mesmo). Se a pessoa atualizar a página, basta digitar o mesmo
-   nome novamente para recuperar sua reserva.
-   ========================================================================= */
-
-// ------------------------- CONFIGURAÇÃO -------------------------------
 const NOIVOS = { ela: 'Fernanda', ele: 'Matheus' };
-const SENHA_ADMIN = 'matefer26'; // troque aqui se quiser outra senha
+const SENHA_ADMIN = 'matefer26';
 
-const CHAVE_PRESENTES = 'cha_panela_presentes';
-const CHAVE_CONVIDADOS = 'cha_panela_convidados';
 const CHAVE_CONFIG = 'cha_panela_config';
+const COLECAO_META = 'cha_panela';
+const COL_PRESENTES = 'cha_panela_presentes';
+const COL_CONVIDADOS = 'cha_panela_convidados';
+const COL_FOTOS_CASA = 'cha_panela_fotos_casa';
 
-// =========================================================================
-// CONFIGURAÇÃO DO FIREBASE — TROQUE PELOS VALORES DO SEU PROJETO
-// -------------------------------------------------------------------------
-// Vá em https://console.firebase.google.com > seu projeto > ícone de
-// engrenagem "Configurações do projeto" > aba "Geral" > seção "Seus
-// aplicativos" > app Web > copie o objeto "firebaseConfig" e cole aqui.
-// =========================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyASIt4YvZaZ5cR3Bu6jT-bHp0vyKOf8hi0",
   authDomain: "cha-de-panela-mat-e-fer.firebaseapp.com",
@@ -593,77 +359,75 @@ const firebaseConfig = {
   appId: "1:291715785616:web:a6b30e9fbdfbf493368915"
 };
 
-const COLECAO_FIRESTORE = 'cha_panela';
 let db = null;
+let refPresentes = null, refConvidados = null, refFotosCasa = null;
 try{
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
+  refPresentes = db.collection(COL_PRESENTES);
+  refConvidados = db.collection(COL_CONVIDADOS);
+  refFotosCasa = db.collection(COL_FOTOS_CASA);
 }catch(e){
   console.error('Falha ao inicializar o Firebase — confira o firebaseConfig.', e);
 }
 
-// Mensagem/data do convite — editável pela área administrativa.
-// Os valores abaixo são só o padrão inicial; quem manda de verdade é o
-// que estiver salvo em CHAVE_CONFIG (compartilhado com todo mundo).
 const CONFIG_PADRAO = {
   dataEvento: 'Data a confirmar em breve',
-  mensagem: 'Confirme sua presença e, se quiser, escolha com carinho um presente para nos ajudar a montar nosso novo lar.'
+  mensagem: 'Confirme sua presença e, se quiser, escolha com carinho um presente para nos ajudar a montar nosso novo lar.',
+  linkPinterest: ''
 };
 let configuracoes = { ...CONFIG_PADRAO };
 
-// Faixas de preço como um pequeno catálogo (código interno + rótulo +
-// nível visual de 1 a 3), em vez de strings soltas — fica mais fácil de
-// estilizar e de manter consistente em toda a aplicação.
-const FAIXAS_PRECO = [
-  { codigo:'ate-50',    rotulo:'Até R$ 50',        nivel:1 },
-  { codigo:'50-100',    rotulo:'R$ 50 – R$ 100',    nivel:2 },
-  { codigo:'acima-100', rotulo:'Acima de R$ 100',   nivel:3 },
-];
-function infoFaixa(codigo){
-  return FAIXAS_PRECO.find(f => f.codigo === codigo) || FAIXAS_PRECO[0];
-}
-function rotuloFaixa(codigo){ return infoFaixa(codigo).rotulo; }
-// Migra valores antigos (ex.: "R$ 100 - mais") para os novos códigos,
-// para não perder dados já salvos ao evoluir o app.
-function normalizarFaixa(valor){
-  if(FAIXAS_PRECO.some(f => f.codigo === valor)) return valor;
-  const v = String(valor||'').toLowerCase();
-  if(v.includes('mais') || v.includes('acima')) return 'acima-100';
-  if(v.includes('50') && v.includes('100')) return '50-100';
-  return 'ate-50';
-}
-
 const PRESENTES_PADRAO = [
-  { id:'g1', nome:'Jogo de Panelas Antiaderente', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Panelas', preco:'acima-100', reservadoPor:null },
-  { id:'g2', nome:'Liquidificador', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Liquidificador', preco:'50-100', reservadoPor:null },
-  { id:'g3', nome:'Jogo de Toalhas de Banho', foto:'https://placehold.co/400x300/C4D3E2/46403A?font=playfair-display&text=Toalhas', preco:'50-100', reservadoPor:null },
-  { id:'g4', nome:'Kit de Facas Profissional', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Facas', preco:'acima-100', reservadoPor:null },
-  { id:'g5', nome:'Jogo de Taças de Vinho', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Ta%C3%A7as', preco:'ate-50', reservadoPor:null },
-  { id:'g6', nome:'Cafeteira Elétrica', foto:'https://placehold.co/400x300/C4D3E2/46403A?font=playfair-display&text=Cafeteira', preco:'acima-100', reservadoPor:null },
-  { id:'g7', nome:'Jogo de Panos de Prato', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Panos', preco:'ate-50', reservadoPor:null },
-  { id:'g8', nome:'Conjunto de Potes Herméticos', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Potes', preco:'50-100', reservadoPor:null },
+  { id:'g1', nome:'Jogo de Panelas Antiaderente', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Panelas' },
+  { id:'g2', nome:'Liquidificador', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Liquidificador' },
+  { id:'g3', nome:'Jogo de Toalhas de Banho', foto:'https://placehold.co/400x300/C4D3E2/46403A?font=playfair-display&text=Toalhas' },
+  { id:'g4', nome:'Kit de Facas Profissional', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Facas' },
+  { id:'g5', nome:'Jogo de Taças de Vinho', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Ta%C3%A7as' },
+  { id:'g6', nome:'Cafeteira Elétrica', foto:'https://placehold.co/400x300/C4D3E2/46403A?font=playfair-display&text=Cafeteira' },
+  { id:'g7', nome:'Jogo de Panos de Prato', foto:'https://placehold.co/400x300/8FA9C4/FFFFFF?font=playfair-display&text=Panos' },
+  { id:'g8', nome:'Conjunto de Potes Herméticos', foto:'https://placehold.co/400x300/DCA498/FFFFFF?font=playfair-display&text=Potes' },
 ];
 
-// ------------------------- ESTADO EM MEMÓRIA ---------------------------
 let presentes = [];
 let convidados = [];
-let nomeConvidadoAtual = null;   // "sessão" simples baseada em nome
-let telaAtual = 'entrada';       // entrada | lista-presentes | obrigado | admin-login | admin
-let intervaloAtualizacao = null;
-let fotoSelecionadaDataUrl = null;   // preview do upload no formulário "novo presente"
-let fotoEdicaoDataUrl = null;        // preview do upload no modal de edição
-let armazenamentoDisponivel = null;  // null = ainda não testado; true/false = resultado do teste
+let fotosCasa = [];
+let nomeConvidadoAtual = null;
+let telaAtual = 'entrada';
+let fotoSelecionadaDataUrl = null;
+let fotoEdicaoDataUrl = null;
+let armazenamentoDisponivel = null;
+let pararEscutaPresentes = null;
+let pararEscutaConvidados = null;
 
-// Testa, na prática, se este ambiente consegue gravar e ler no Firestore.
-// Isso pega tanto problemas de configuração (firebaseConfig com os
-// valores de exemplo, não substituídos) quanto de conexão.
+async function lerChave(chave){
+  if(!db) return null;
+  try{
+    const doc = await db.collection(COLECAO_META).doc(chave).get();
+    return doc.exists ? JSON.parse(doc.data().dados) : null;
+  }catch(e){
+    console.error('Falha ao ler', chave, e);
+    return null;
+  }
+}
+async function gravarChave(chave, valor){
+  if(!db) return false;
+  try{
+    await db.collection(COLECAO_META).doc(chave).set({ dados: JSON.stringify(valor), atualizadoEm: new Date().toISOString() });
+    return true;
+  }catch(e){
+    console.error('Falha ao gravar', chave, e);
+    return false;
+  }
+}
+
 async function testarAmbienteStorage(){
   if(!db){ armazenamentoDisponivel = false; return; }
   try{
     const chaveTeste = 'cha_panela_teste_ambiente';
     const valorTeste = String(Date.now());
-    await db.collection(COLECAO_FIRESTORE).doc(chaveTeste).set({ dados: valorTeste });
-    const doc = await db.collection(COLECAO_FIRESTORE).doc(chaveTeste).get();
+    await db.collection(COLECAO_META).doc(chaveTeste).set({ dados: valorTeste });
+    const doc = await db.collection(COLECAO_META).doc(chaveTeste).get();
     armazenamentoDisponivel = !!(doc.exists && doc.data().dados === valorTeste);
   }catch(e){
     console.error('Teste de conexão com o Firestore falhou:', e);
@@ -675,46 +439,49 @@ function bannerAmbiente(){
   return `
     <div class="aviso aviso-ambiente">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.7 17a2 2 0 0 0 1.7 3h15.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-      <span><strong>Não foi possível conectar ao banco de dados.</strong> Verifique se você já substituiu o <code>firebaseConfig</code> pelos valores reais do seu projeto Firebase, e se as regras do Firestore permitem leitura/escrita na coleção "cha_panela". Enquanto isso não for resolvido, nada aqui será salvo nem compartilhado.</span>
+      <span><strong>Não foi possível conectar ao banco de dados.</strong> Verifique o <code>firebaseConfig</code> e as regras do Firestore.</span>
     </div>
   `;
 }
 
-// ------------------------- HELPERS DE STORAGE ---------------------------
-async function lerChave(chave){
-  if(!db) return null;
-  try{
-    const doc = await db.collection(COLECAO_FIRESTORE).doc(chave).get();
-    return doc.exists ? JSON.parse(doc.data().dados) : null;
-  }catch(e){
-    console.error('Falha ao ler', chave, e);
-    return null;
-  }
-}
-async function gravarChave(chave, valor){
-  if(!db) return false;
-  try{
-    await db.collection(COLECAO_FIRESTORE).doc(chave).set({
-      dados: JSON.stringify(valor),
-      atualizadoEm: new Date().toISOString()
-    });
-    return true;
-  }catch(e){
-    console.error('Falha ao gravar', chave, e);
-    return false;
-  }
+function slugConvidado(nome){
+  const base = String(nome||'').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/(^-+|-+$)/g,'');
+  return base || ('convidado-' + Date.now());
 }
 
 async function carregarDados(){
-  const p = await lerChave(CHAVE_PRESENTES);
-  if(p && Array.isArray(p) && p.length){
-    presentes = p.map(item => ({ ...item, preco: normalizarFaixa(item.preco) }));
-  }else{
-    presentes = PRESENTES_PADRAO.map(x => ({...x}));
-    await gravarChave(CHAVE_PRESENTES, presentes);
+  if(refPresentes){
+    try{
+      const snap = await refPresentes.get();
+      if(!snap.empty){
+        presentes = snap.docs.map(d => ({ id:d.id, nome:d.data().nome, foto:d.data().foto, reservadoPor: d.data().reservadoPor || null }));
+      }else{
+        const lote = db.batch();
+        PRESENTES_PADRAO.forEach(p => lote.set(refPresentes.doc(p.id), { nome:p.nome, foto:p.foto, reservadoPor:null }));
+        await lote.commit();
+        presentes = PRESENTES_PADRAO.map(p => ({ ...p, reservadoPor:null }));
+      }
+    }catch(e){
+      console.error('Falha ao carregar presentes:', e);
+      presentes = PRESENTES_PADRAO.map(p => ({ ...p, reservadoPor:null }));
+    }
   }
-  const c = await lerChave(CHAVE_CONVIDADOS);
-  convidados = (c && Array.isArray(c)) ? c : [];
+
+  if(refConvidados){
+    try{
+      const snap = await refConvidados.get();
+      convidados = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    }catch(e){ console.error('Falha ao carregar convidados:', e); convidados = []; }
+  }
+
+  if(refFotosCasa){
+    try{
+      const snap = await refFotosCasa.get();
+      fotosCasa = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    }catch(e){ console.error('Falha ao carregar galeria:', e); fotosCasa = []; }
+  }
 
   const cfg = await lerChave(CHAVE_CONFIG);
   if(cfg && typeof cfg === 'object'){
@@ -725,10 +492,26 @@ async function carregarDados(){
   }
 }
 
-// Redimensiona/comprime uma imagem escolhida no computador antes de
-// guardá-la (como Data URL) — mantém o armazenamento compartilhado leve
-// mesmo com várias fotos cadastradas.
-function redimensionarImagem(arquivo, larguraMax = 640, qualidade = 0.72){
+function iniciarEscutaTempoReal(){
+  if(!db) return;
+  if(pararEscutaPresentes) pararEscutaPresentes();
+  if(pararEscutaConvidados) pararEscutaConvidados();
+
+  pararEscutaPresentes = refPresentes.onSnapshot(snap => {
+    presentes = snap.docs.map(d => ({ id:d.id, nome:d.data().nome, foto:d.data().foto, reservadoPor: d.data().reservadoPor || null }));
+    if(telaAtual === 'lista-presentes') desenharGradePresentes();
+    if(telaAtual === 'admin'){ preencherTabelaPresentes(); preencherTabelaConvidados(); atualizarResumoAdmin(); }
+  }, e => console.error('Erro ao escutar presentes:', e));
+
+  pararEscutaConvidados = refConvidados.onSnapshot(snap => {
+    convidados = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    if(telaAtual === 'admin'){ preencherTabelaConvidados(); atualizarResumoAdmin(); }
+  }, e => console.error('Erro ao escutar convidados:', e));
+}
+
+function redimensionarImagem(arquivo, larguraMax, qualidade){
+  larguraMax = larguraMax || 640;
+  qualidade = qualidade || 0.72;
   return new Promise((resolve, reject) => {
     const leitor = new FileReader();
     leitor.onerror = () => reject(new Error('Falha ao ler o arquivo'));
@@ -751,11 +534,8 @@ function redimensionarImagem(arquivo, larguraMax = 640, qualidade = 0.72){
   });
 }
 
-// ------------------------- UTIL -------------------------------
 function escapeHtml(s){
-  return String(s ?? '').replace(/[&<>"']/g, m => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[m]));
+  return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 function normalizarNome(n){ return String(n||'').trim().toLowerCase(); }
 function formatarDataHora(iso){
@@ -763,24 +543,15 @@ function formatarDataHora(iso){
   return d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 function iconeFloral(){
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3c0 4-2 6-2 9s2 6 2 6 2-3 2-6-2-5-2-9Z"/><path d="M3 12c4 0 6-2 9-2s6 2 6 2-3 2-6 2-5-2-9-2Z" opacity=".55"/></svg>`;
-}
-function renderFaixaBadge(codigo){
-  const f = infoFaixa(codigo);
-  const moedas = [1,2,3].map(n => `<span class="${n <= f.nivel ? 'acesa' : ''}"></span>`).join('');
-  return `<span class="faixa-badge faixa-nivel-${f.nivel}"><span class="faixa-moedas">${moedas}</span>${escapeHtml(f.rotulo)}</span>`;
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3c0 4-2 6-2 9s2 6 2 6 2-3 2-6-2-5-2-9Z"/><path d="M3 12c4 0 6-2 9-2s6 2 6 2-3 2-6 2-5-2-9-2Z" opacity=".55"/></svg>';
 }
 
-// ------------------------- TOAST (substitui alert()) -------------------------------
-// Observação: window.prompt / alert / confirm ficam bloqueados dentro do
-// iframe sandbox do artifact — por isso construímos versões próprias em
-// HTML, que funcionam de forma confiável em qualquer navegador.
 function garantirToastContainer(){
   let c = document.getElementById('toast-container');
   if(!c){
     c = document.createElement('div');
     c.id = 'toast-container';
-    document.getElementById('app-shell').appendChild(c);
+    document.body.appendChild(c);
   }
   return c;
 }
@@ -793,22 +564,20 @@ function mostrarToast(mensagem, tipo){
   setTimeout(() => el.remove(), 3200);
 }
 
-// ------------------------- MODAL (substitui prompt()/confirm()) -------------------------------
 function abrirModal(innerHtml){
   fecharModal();
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.id = 'modal-overlay-ativo';
-  overlay.innerHTML = `<div class="modal-caixa">${innerHtml}</div>`;
+  overlay.innerHTML = '<div class="modal-caixa">' + innerHtml + '</div>';
   overlay.addEventListener('click', (ev) => { if(ev.target === overlay) fecharModal(); });
-  document.getElementById('app-shell').appendChild(overlay);
+  document.body.appendChild(overlay);
   return overlay;
 }
 function fecharModal(){
   const existente = document.getElementById('modal-overlay-ativo');
   if(existente) existente.remove();
 }
-
 function abrirModalConfirmacao(mensagem, aoConfirmar){
   const overlay = abrirModal(`
     <h3>Confirmar ação</h3>
@@ -819,16 +588,11 @@ function abrirModalConfirmacao(mensagem, aoConfirmar){
     </div>
   `);
   overlay.querySelector('#modal-cancelar').addEventListener('click', fecharModal);
-  overlay.querySelector('#modal-confirmar').addEventListener('click', () => {
-    fecharModal();
-    aoConfirmar();
-  });
+  overlay.querySelector('#modal-confirmar').addEventListener('click', () => { fecharModal(); aoConfirmar(); });
 }
 
-// ------------------------- RENDER: TELA DE ENTRADA -------------------------------
 function renderEntrada(){
   telaAtual = 'entrada';
-  pararAtualizacaoAutomatica();
   const app = document.getElementById('app');
   app.innerHTML = `
     <div class="pagina-convidado fade-in">
@@ -847,7 +611,6 @@ function renderEntrada(){
           <label for="input-nome">Nome completo</label>
           <input type="text" id="input-nome" placeholder="Digite seu nome" required autocomplete="name">
         </div>
-
         <div class="campo">
           <label>Você vai comparecer?</label>
           <div class="radio-grupo" id="grupo-rsvp">
@@ -861,17 +624,13 @@ function renderEntrada(){
             </label>
           </div>
         </div>
-
         <button type="submit" class="botao botao-primario">Confirmar</button>
       </form>
 
-      <div class="rodape-admin">
-        <button type="button" id="btn-abrir-admin">Área administrativa</button>
-      </div>
+      <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
     </div>
   `;
 
-  // destaque visual da opção de rádio selecionada
   const opcoes = app.querySelectorAll('.radio-opcao');
   opcoes.forEach(op => {
     op.addEventListener('click', () => {
@@ -891,31 +650,27 @@ async function handleSubmitEntrada(ev){
   if(!nome){ mostrarToast('Por favor, digite seu nome completo.', 'erro'); return; }
   if(!rsvpEl){ mostrarToast('Por favor, selecione se você vai comparecer.', 'erro'); return; }
   const rsvp = rsvpEl.value;
-
   nomeConvidadoAtual = nome;
 
-  // procura registro existente (mesma pessoa, ex.: recarregou a página)
-  const existente = convidados.find(g => normalizarNome(g.nome) === normalizarNome(nome));
-  if(existente){
-    existente.rsvp = rsvp;
-    existente.timestamp = new Date().toISOString();
-  }else{
-    convidados.push({ nome, rsvp, timestamp: new Date().toISOString() });
+  if(refConvidados){
+    try{
+      await refConvidados.doc(slugConvidado(nome)).set({ nome, rsvp, timestamp: new Date().toISOString() });
+    }catch(e){
+      console.error('Falha ao salvar resposta:', e);
+      mostrarToast('Não foi possível salvar sua resposta agora. Tente novamente.', 'erro');
+      return;
+    }
   }
-  await gravarChave(CHAVE_CONVIDADOS, convidados);
 
   if(rsvp === 'sim'){
-    await carregarDados(); // garante presentes atualizados de outros dispositivos
-    renderListaPresentes();
+    renderGaleriaCasa();
   }else{
     renderObrigadoNaoVai();
   }
 }
 
-// ------------------------- RENDER: NÃO VAI COMPARECER -------------------------------
 function renderObrigadoNaoVai(){
   telaAtual = 'obrigado';
-  pararAtualizacaoAutomatica();
   const app = document.getElementById('app');
   app.innerHTML = `
     <div class="pagina-convidado fade-in">
@@ -929,16 +684,49 @@ function renderObrigadoNaoVai(){
       <div class="cartao" style="text-align:center;">
         <button type="button" class="botao botao-fantasma" id="btn-voltar">Voltar ao início</button>
       </div>
-      <div class="rodape-admin">
-        <button type="button" id="btn-abrir-admin">Área administrativa</button>
-      </div>
+      <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
     </div>
   `;
   document.getElementById('btn-voltar').addEventListener('click', renderEntrada);
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
 }
 
-// ------------------------- RENDER: LISTA DE PRESENTES -------------------------------
+function renderGaleriaCasa(){
+  telaAtual = 'galeria-casa';
+  const semConteudo = fotosCasa.length === 0 && !configuracoes.linkPinterest;
+  if(semConteudo){ renderListaPresentes(); return; }
+
+  const app = document.getElementById('app');
+  const fotosHtml = fotosCasa.map(f => `<div class="galeria-item"><img src="${f.dataUrl}" alt="Inspiração para a casa" loading="lazy"></div>`).join('');
+  const linkHtml = configuracoes.linkPinterest
+    ? `<a class="botao botao-secundario" href="${escapeHtml(configuracoes.linkPinterest)}" target="_blank" rel="noopener noreferrer">Ver pasta completa no Pinterest</a><div style="height:10px;"></div>`
+    : '';
+
+  app.innerHTML = `
+    <div class="pagina-convidado fade-in">
+      ${bannerAmbiente()}
+      <div class="hero">
+        <div class="monograma">${NOIVOS.ela} &amp; ${NOIVOS.ele}</div>
+        <h1>A vibe da <em>nossa casa</em></h1>
+        <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
+        <p class="subtitulo">Um gostinho do estilo que a gente sonha para o nosso cantinho — pra te inspirar na hora de escolher um presente!</p>
+      </div>
+
+      ${fotosHtml ? `<div class="galeria-grid">${fotosHtml}</div>` : ''}
+
+      <div class="cartao" style="text-align:center;">
+        ${linkHtml}
+        <button type="button" class="botao botao-primario" id="btn-ver-presentes">Ver Lista de Presentes</button>
+      </div>
+
+      <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
+    </div>
+  `;
+
+  document.getElementById('btn-ver-presentes').addEventListener('click', renderListaPresentes);
+  document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
+}
+
 function renderListaPresentes(){
   telaAtual = 'lista-presentes';
   const app = document.getElementById('app');
@@ -964,22 +752,15 @@ function renderListaPresentes(){
         <button type="button" class="botao botao-fantasma" id="btn-trocar-pessoa">Não sou ${escapeHtml(nomeConvidadoAtual)} — voltar</button>
       </div>
 
-      <div class="rodape-admin">
-        <button type="button" id="btn-abrir-admin">Área administrativa</button>
-      </div>
+      <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
     </div>
   `;
 
   desenharGradePresentes();
 
   document.getElementById('btn-finalizar-resposta').addEventListener('click', renderConfirmacaoFinal);
-  document.getElementById('btn-trocar-pessoa').addEventListener('click', () => {
-    nomeConvidadoAtual = null;
-    renderEntrada();
-  });
+  document.getElementById('btn-trocar-pessoa').addEventListener('click', () => { nomeConvidadoAtual = null; renderEntrada(); });
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
-
-  iniciarAtualizacaoAutomatica();
 }
 
 function desenharGradePresentes(){
@@ -989,22 +770,20 @@ function desenharGradePresentes(){
   const cards = presentes.map(p => {
     let statusHtml, acoesHtml;
     if(!p.reservadoPor){
-      statusHtml = `<div class="presente-status status-disponivel">Disponível</div>`;
-      acoesHtml = `<button class="botao botao-primario btn-reservar" data-id="${p.id}">Reservar Presente</button>`;
+      statusHtml = '<div class="presente-status status-disponivel">Disponível</div>';
+      acoesHtml = '<button class="botao botao-primario btn-reservar" data-id="' + p.id + '">Reservar Presente</button>';
     }else if(normalizarNome(p.reservadoPor) === normalizarNome(nomeConvidadoAtual)){
-      statusHtml = `<div class="presente-status status-reservado-eu">Você reservou este presente ✓</div>`;
-      acoesHtml = `<button class="botao botao-secundario btn-cancelar" data-id="${p.id}">Cancelar Reserva</button>`;
+      statusHtml = '<div class="presente-status status-reservado-eu">Você reservou este presente ✓</div>';
+      acoesHtml = '<button class="botao botao-secundario btn-cancelar" data-id="' + p.id + '">Cancelar Reserva</button>';
     }else{
-      statusHtml = `<div class="presente-status status-reservado-outro">Reservado por ${escapeHtml(p.reservadoPor)}</div>`;
-      acoesHtml = `<button class="botao botao-desabilitado" disabled>Reservado</button>`;
+      statusHtml = '<div class="presente-status status-reservado-outro">Já reservado</div>';
+      acoesHtml = '<button class="botao botao-desabilitado" disabled>Reservado</button>';
     }
-
     return `
       <div class="presente-card" data-card-id="${p.id}">
         <img class="presente-foto" src="${p.foto}" alt="${escapeHtml(p.nome)}" loading="lazy">
         <div class="presente-corpo">
           <div class="presente-nome">${escapeHtml(p.nome)}</div>
-          ${renderFaixaBadge(p.preco)}
           ${statusHtml}
           <div class="presente-acoes">${acoesHtml}</div>
         </div>
@@ -1014,34 +793,43 @@ function desenharGradePresentes(){
 
   container.innerHTML = `<div class="grade-presentes">${cards}</div>`;
 
-  container.querySelectorAll('.btn-reservar').forEach(btn=>{
-    btn.addEventListener('click', () => reservarPresente(btn.dataset.id));
-  });
-  container.querySelectorAll('.btn-cancelar').forEach(btn=>{
-    btn.addEventListener('click', () => cancelarReserva(btn.dataset.id));
-  });
+  container.querySelectorAll('.btn-reservar').forEach(btn => btn.addEventListener('click', () => reservarPresente(btn.dataset.id)));
+  container.querySelectorAll('.btn-cancelar').forEach(btn => btn.addEventListener('click', () => cancelarReserva(btn.dataset.id)));
 }
 
 async function reservarPresente(id){
-  // recarrega dados mais recentes para evitar conflito com outro convidado
-  const maisRecentes = await lerChave(CHAVE_PRESENTES);
-  if(maisRecentes) presentes = maisRecentes;
+  if(!refPresentes){ mostrarToast('Sem conexão com o banco de dados agora.', 'erro'); return; }
 
-  const presente = presentes.find(p => p.id === id);
-  if(!presente) return;
-  if(presente.reservadoPor){
-    mostrarToast('Ops! Esse presente acabou de ser reservado por outra pessoa. Escolha outro, por favor.', 'erro');
-    desenharGradePresentes();
+  const ref = refPresentes.doc(id);
+  let conflito = false;
+  let nomeGuardado = null;
+
+  try{
+    await db.runTransaction(async (transacao) => {
+      const doc = await transacao.get(ref);
+      if(!doc.exists) return;
+      const dados = doc.data();
+      if(dados.reservadoPor){ conflito = true; return; }
+      transacao.update(ref, { reservadoPor: nomeConvidadoAtual });
+      nomeGuardado = dados.nome;
+    });
+  }catch(e){
+    console.error('Falha ao reservar presente:', e);
+    mostrarToast('Não foi possível concluir a reserva agora. Tente novamente.', 'erro');
     return;
   }
-  presente.reservadoPor = nomeConvidadoAtual;
-  await gravarChave(CHAVE_PRESENTES, presentes);
+
+  if(conflito){
+    mostrarToast('Ops! Esse presente acabou de ser reservado por outra pessoa. Escolha outro, por favor.', 'erro');
+    return;
+  }
+
+  const p = presentes.find(p => p.id === id);
+  if(p) p.reservadoPor = nomeConvidadoAtual;
   desenharGradePresentes();
-  mostrarModalPosReserva(presente.nome);
+  mostrarModalPosReserva(nomeGuardado || (p ? p.nome : ''));
 }
 
-// Depois de reservar, pergunta se a pessoa quer continuar escolhendo
-// presentes ou já encerrar e "enviar" a resposta (tela de confirmação).
 function mostrarModalPosReserva(nomePresente){
   const overlay = abrirModal(`
     <h3>Presente reservado! 🎁</h3>
@@ -1052,20 +840,36 @@ function mostrarModalPosReserva(nomePresente){
     </div>
   `);
   overlay.querySelector('#modal-continuar').addEventListener('click', fecharModal);
-  overlay.querySelector('#modal-finalizar').addEventListener('click', () => {
-    fecharModal();
-    renderConfirmacaoFinal();
-  });
+  overlay.querySelector('#modal-finalizar').addEventListener('click', () => { fecharModal(); renderConfirmacaoFinal(); });
 }
 
-// ------------------------- RENDER: CONFIRMAÇÃO FINAL -------------------------------
+async function cancelarReserva(id){
+  if(!refPresentes){ mostrarToast('Sem conexão com o banco de dados agora.', 'erro'); return; }
+  const ref = refPresentes.doc(id);
+  try{
+    await db.runTransaction(async (transacao) => {
+      const doc = await transacao.get(ref);
+      if(!doc.exists) return;
+      const dados = doc.data();
+      if(normalizarNome(dados.reservadoPor) !== normalizarNome(nomeConvidadoAtual)) return;
+      transacao.update(ref, { reservadoPor: null });
+    });
+  }catch(e){
+    console.error('Falha ao cancelar reserva:', e);
+    mostrarToast('Não foi possível cancelar agora. Tente novamente.', 'erro');
+    return;
+  }
+  const p = presentes.find(p => p.id === id);
+  if(p) p.reservadoPor = null;
+  desenharGradePresentes();
+}
+
 function renderConfirmacaoFinal(){
   telaAtual = 'confirmacao-final';
-  pararAtualizacaoAutomatica();
   const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(nomeConvidadoAtual));
   const listaHtml = meusPresentes.length
-    ? `<ul style="text-align:left;margin:0;padding-left:20px;">${meusPresentes.map(p => `<li>${escapeHtml(p.nome)} <span style="color:var(--tinta-suave);">(${escapeHtml(rotuloFaixa(p.preco))})</span></li>`).join('')}</ul>`
-    : `<p class="subtitulo" style="margin:0;">Você não reservou nenhum presente — e tudo bem! Sua presença já é o nosso maior presente.</p>`;
+    ? '<ul style="text-align:left;margin:0;padding-left:20px;">' + meusPresentes.map(p => '<li>' + escapeHtml(p.nome) + '</li>').join('') + '</ul>'
+    : '<p class="subtitulo" style="margin:0;">Você não reservou nenhum presente — e tudo bem! Sua presença já é o nosso maior presente.</p>';
 
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -1075,7 +879,7 @@ function renderConfirmacaoFinal(){
         <div class="monograma">${NOIVOS.ela} &amp; ${NOIVOS.ele}</div>
         <h1>Obrigado, <em>${escapeHtml(nomeConvidadoAtual)}</em>!</h1>
         <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
-        <p class="subtitulo">Sua resposta foi enviada com sucesso. Mal podemos esperar para celebrar com você!</p>
+        <p class="subtitulo">Confira abaixo o resumo da sua resposta.</p>
       </div>
 
       <div class="cartao">
@@ -1086,45 +890,40 @@ function renderConfirmacaoFinal(){
       </div>
 
       <div class="cartao" style="text-align:center;">
+        <button type="button" class="botao botao-primario" id="btn-finalizar-salvar">Finalizar e Salvar</button>
+        <div style="height:10px;"></div>
         <button type="button" class="botao botao-fantasma" id="btn-voltar-lista">Voltar à lista de presentes</button>
       </div>
 
-      <div class="rodape-admin">
-        <button type="button" id="btn-abrir-admin">Área administrativa</button>
-      </div>
+      <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
     </div>
   `;
 
+  document.getElementById('btn-finalizar-salvar').addEventListener('click', renderDespedidaFinal);
   document.getElementById('btn-voltar-lista').addEventListener('click', renderListaPresentes);
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
 }
 
-async function cancelarReserva(id){
-  const presente = presentes.find(p => p.id === id);
-  if(!presente) return;
-  if(normalizarNome(presente.reservadoPor) !== normalizarNome(nomeConvidadoAtual)) return;
-  presente.reservadoPor = null;
-  await gravarChave(CHAVE_PRESENTES, presentes);
-  desenharGradePresentes();
+function renderDespedidaFinal(){
+  telaAtual = 'despedida-final';
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="pagina-convidado fade-in">
+      ${bannerAmbiente()}
+      <div class="hero">
+        <div class="monograma">${NOIVOS.ela} &amp; ${NOIVOS.ele}</div>
+        <h1>Tudo certo, <em>${escapeHtml(nomeConvidadoAtual)}</em>! 💛</h1>
+        <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
+        <p class="subtitulo">Sua resposta foi salva com sucesso. Mal podemos esperar para celebrar esse momento tão especial com você!</p>
+      </div>
+      <div class="cartao" style="text-align:center;">
+        <button type="button" class="botao botao-fantasma botao-pequeno" id="btn-voltar-lista-despedida" style="width:auto;">Voltar à lista de presentes</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('btn-voltar-lista-despedida').addEventListener('click', renderListaPresentes);
 }
 
-// Atualização periódica (para refletir reservas feitas em outros celulares)
-function iniciarAtualizacaoAutomatica(){
-  pararAtualizacaoAutomatica();
-  intervaloAtualizacao = setInterval(async () => {
-    if(telaAtual !== 'lista-presentes') return;
-    const maisRecentes = await lerChave(CHAVE_PRESENTES);
-    if(maisRecentes){
-      presentes = maisRecentes;
-      desenharGradePresentes();
-    }
-  }, 5000);
-}
-function pararAtualizacaoAutomatica(){
-  if(intervaloAtualizacao){ clearInterval(intervaloAtualizacao); intervaloAtualizacao = null; }
-}
-
-// ------------------------- ADMIN: LOGIN -------------------------------
 function abrirLoginAdmin(){
   const overlay = abrirModal(`
     <h3>Área administrativa</h3>
@@ -1141,14 +940,11 @@ function abrirLoginAdmin(){
       </div>
     </form>
   `);
-
   const form = overlay.querySelector('#form-senha-admin');
   const input = overlay.querySelector('#input-senha-admin');
   const erroEl = overlay.querySelector('#erro-senha-admin');
-
   input.focus();
   overlay.querySelector('#modal-cancelar-admin').addEventListener('click', fecharModal);
-
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     if(input.value === SENHA_ADMIN){
@@ -1162,15 +958,8 @@ function abrirLoginAdmin(){
   });
 }
 
-// ------------------------- ADMIN: DASHBOARD -------------------------------
 async function renderAdmin(){
   telaAtual = 'admin';
-  pararAtualizacaoAutomatica();
-  await carregarDados(); // sempre exibir dados mais recentes ao entrar
-
-  const confirmados = convidados.filter(g => g.rsvp === 'sim').length;
-  const declinados = convidados.filter(g => g.rsvp === 'nao').length;
-  const reservados = presentes.filter(p => p.reservadoPor).length;
 
   const app = document.getElementById('app');
   app.innerHTML = `
@@ -1187,10 +976,10 @@ async function renderAdmin(){
       </div>
 
       <div class="admin-resumo">
-        <div class="resumo-card"><div class="num">${convidados.length}</div><div class="rot">Respostas recebidas</div></div>
-        <div class="resumo-card"><div class="num">${confirmados}</div><div class="rot">Confirmaram presença</div></div>
-        <div class="resumo-card"><div class="num">${declinados}</div><div class="rot">Não vão comparecer</div></div>
-        <div class="resumo-card"><div class="num">${reservados}/${presentes.length}</div><div class="rot">Presentes reservados</div></div>
+        <div class="resumo-card"><div class="num" id="resumo-total">0</div><div class="rot">Respostas recebidas</div></div>
+        <div class="resumo-card"><div class="num" id="resumo-confirmados">0</div><div class="rot">Confirmaram presença</div></div>
+        <div class="resumo-card"><div class="num" id="resumo-declinados">0</div><div class="rot">Não vão comparecer</div></div>
+        <div class="resumo-card"><div class="num" id="resumo-reservados">0</div><div class="rot">Presentes reservados</div></div>
       </div>
 
       <div class="admin-bloco">
@@ -1200,25 +989,14 @@ async function renderAdmin(){
         </div>
         <div class="tabela-wrap">
           <table class="planilha">
-            <thead>
-              <tr>
-                <th>Nome do Convidado</th>
-                <th>Presença</th>
-                <th>Presente Reservado</th>
-                <th>Faixa de Preço</th>
-                <th>Data e Hora da Resposta</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Nome do Convidado</th><th>Presença</th><th>Presente(s) Reservado(s)</th><th>Data e Hora da Resposta</th></tr></thead>
             <tbody id="tbody-convidados"></tbody>
           </table>
         </div>
       </div>
 
       <div class="admin-bloco">
-        <div class="admin-bloco-topo">
-          <h2>Presentes cadastrados</h2>
-        </div>
-
+        <div class="admin-bloco-topo"><h2>Presentes cadastrados</h2></div>
         <form id="form-novo-presente" class="form-inline" style="margin-bottom:18px;">
           <div class="campo">
             <label for="np-nome">Nome do item</label>
@@ -1231,34 +1009,18 @@ async function renderAdmin(){
               <input type="file" id="np-foto" accept="image/*">
             </div>
           </div>
-          <div class="campo">
-            <label for="np-preco">Faixa de preço</label>
-            <select id="np-preco">
-              ${FAIXAS_PRECO.map(f => `<option value="${f.codigo}">${f.rotulo}</option>`).join('')}
-            </select>
-          </div>
           <button type="submit" class="botao botao-secundario">Salvar Novo Presente</button>
         </form>
-
         <div class="tabela-wrap">
           <table class="planilha">
-            <thead>
-              <tr>
-                <th>Presente</th>
-                <th>Faixa de Preço</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
+            <thead><tr><th>Presente</th><th>Status</th><th></th></tr></thead>
             <tbody id="tbody-presentes"></tbody>
           </table>
         </div>
       </div>
 
       <div class="admin-bloco">
-        <div class="admin-bloco-topo">
-          <h2>Mensagem e data do convite</h2>
-        </div>
+        <div class="admin-bloco-topo"><h2>Mensagem, data e inspiração do convite</h2></div>
         <form id="form-config">
           <div class="campo">
             <label for="cfg-data">Data do evento (texto livre)</label>
@@ -1269,8 +1031,21 @@ async function renderAdmin(){
             <label for="cfg-mensagem">Mensagem de boas-vindas</label>
             <textarea id="cfg-mensagem">${escapeHtml(configuracoes.mensagem)}</textarea>
           </div>
+          <div class="campo">
+            <label for="cfg-pinterest">Link da pasta do Pinterest (inspiração para a casa)</label>
+            <input type="url" id="cfg-pinterest" value="${escapeHtml(configuracoes.linkPinterest || '')}" placeholder="https://www.pinterest.com/...">
+          </div>
           <button type="submit" class="botao botao-primario botao-pequeno" style="width:auto;">Salvar Configurações</button>
         </form>
+      </div>
+
+      <div class="admin-bloco">
+        <div class="admin-bloco-topo"><h2>Fotos de inspiração para a casa</h2></div>
+        <div class="campo">
+          <label for="galeria-upload">Adicionar fotos (pode selecionar várias de uma vez)</label>
+          <input type="file" id="galeria-upload" accept="image/*" multiple>
+        </div>
+        <div id="galeria-admin-grid" class="galeria-admin-grid"></div>
       </div>
 
       <p class="rodape-nota">Os dados são compartilhados em tempo real entre todos os convidados e este painel.</p>
@@ -1279,13 +1054,14 @@ async function renderAdmin(){
 
   preencherTabelaConvidados();
   preencherTabelaPresentes();
+  preencherGaleriaAdmin();
+  atualizarResumoAdmin();
 
   document.getElementById('btn-sair-admin').addEventListener('click', renderEntrada);
   document.getElementById('btn-exportar-csv').addEventListener('click', exportarCsv);
   document.getElementById('form-novo-presente').addEventListener('submit', handleAdicionarPresente);
   document.getElementById('form-config').addEventListener('submit', handleSalvarConfig);
 
-  // Preview da foto ao escolher um arquivo no formulário de novo presente
   fotoSelecionadaDataUrl = null;
   const inputFoto = document.getElementById('np-foto');
   const previewFoto = document.getElementById('np-foto-preview');
@@ -1296,17 +1072,47 @@ async function renderAdmin(){
     try{
       fotoSelecionadaDataUrl = await redimensionarImagem(arquivo);
       previewFoto.src = fotoSelecionadaDataUrl;
-    }catch(e){
-      mostrarToast('Não foi possível carregar essa imagem.', 'erro');
-    }
+    }catch(e){ mostrarToast('Não foi possível carregar essa imagem.', 'erro'); }
   });
+
+  document.getElementById('galeria-upload').addEventListener('change', async (ev) => {
+    const arquivos = Array.from(ev.target.files || []);
+    if(!arquivos.length) return;
+    for(const arquivo of arquivos){
+      try{
+        const dataUrl = await redimensionarImagem(arquivo, 900, 0.7);
+        await refFotosCasa.add({ dataUrl, criadoEm: new Date().toISOString() });
+      }catch(e){
+        console.error(e);
+        mostrarToast('Não foi possível enviar uma das fotos.', 'erro');
+      }
+    }
+    const snap = await refFotosCasa.get();
+    fotosCasa = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    preencherGaleriaAdmin();
+    mostrarToast('Fotos adicionadas à galeria!');
+    ev.target.value = '';
+  });
+}
+
+function atualizarResumoAdmin(){
+  const totalEl = document.getElementById('resumo-total');
+  if(!totalEl) return;
+  const confirmados = convidados.filter(g => g.rsvp === 'sim').length;
+  const declinados = convidados.filter(g => g.rsvp === 'nao').length;
+  const reservados = presentes.filter(p => p.reservadoPor).length;
+  totalEl.textContent = convidados.length;
+  document.getElementById('resumo-confirmados').textContent = confirmados;
+  document.getElementById('resumo-declinados').textContent = declinados;
+  document.getElementById('resumo-reservados').textContent = reservados + '/' + presentes.length;
 }
 
 async function handleSalvarConfig(ev){
   ev.preventDefault();
   const dataEvento = document.getElementById('cfg-data').value.trim() || CONFIG_PADRAO.dataEvento;
   const mensagem = document.getElementById('cfg-mensagem').value.trim() || CONFIG_PADRAO.mensagem;
-  configuracoes = { dataEvento, mensagem };
+  const linkPinterest = document.getElementById('cfg-pinterest').value.trim();
+  configuracoes = { dataEvento, mensagem, linkPinterest };
   await gravarChave(CHAVE_CONFIG, configuracoes);
   mostrarToast('Configurações salvas! Já valem para todo mundo que abrir o link.');
 }
@@ -1314,25 +1120,21 @@ async function handleSalvarConfig(ev){
 function preencherTabelaConvidados(){
   const tbody = document.getElementById('tbody-convidados');
   if(!tbody) return;
-
   if(convidados.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--tinta-suave);padding:24px;">Nenhuma resposta recebida ainda.</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--tinta-suave);padding:24px;">Nenhuma resposta recebida ainda.</td></tr>';
     return;
   }
-
   const linhas = [...convidados]
     .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
     .map(g => {
-      const presente = presentes.find(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
-      const tagPresenca = g.rsvp === 'sim'
-        ? `<span class="tag tag-sim">Confirmou</span>`
-        : `<span class="tag tag-nao">Declinou</span>`;
+      const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
+      const tagPresenca = g.rsvp === 'sim' ? '<span class="tag tag-sim">Confirmou</span>' : '<span class="tag tag-nao">Declinou</span>';
+      const nomesPresentes = meusPresentes.length ? meusPresentes.map(p => escapeHtml(p.nome)).join('; ') : '—';
       return `
         <tr>
           <td>${escapeHtml(g.nome)}</td>
           <td>${tagPresenca}</td>
-          <td>${presente ? escapeHtml(presente.nome) : '—'}</td>
-          <td>${presente ? escapeHtml(rotuloFaixa(presente.preco)) : '—'}</td>
+          <td>${nomesPresentes}</td>
           <td>${formatarDataHora(g.timestamp)}</td>
         </tr>
       `;
@@ -1343,7 +1145,6 @@ function preencherTabelaConvidados(){
 function preencherTabelaPresentes(){
   const tbody = document.getElementById('tbody-presentes');
   if(!tbody) return;
-
   tbody.innerHTML = presentes.map(p => `
     <tr>
       <td>
@@ -1352,24 +1153,17 @@ function preencherTabelaPresentes(){
           ${escapeHtml(p.nome)}
         </div>
       </td>
-      <td>${escapeHtml(rotuloFaixa(p.preco))}</td>
-      <td>${p.reservadoPor ? `<span class="tag tag-nao">Reservado por ${escapeHtml(p.reservadoPor)}</span>` : `<span class="tag tag-livre">Disponível</span>`}</td>
+      <td>${p.reservadoPor ? '<span class="tag tag-nao">Reservado por ' + escapeHtml(p.reservadoPor) + '</span>' : '<span class="tag tag-livre">Disponível</span>'}</td>
       <td style="white-space:nowrap;">
         <button class="botao botao-fantasma botao-pequeno btn-editar-presente" data-id="${p.id}">Editar</button>
         <button class="botao botao-fantasma botao-pequeno btn-remover-presente" data-id="${p.id}">Remover</button>
       </td>
     </tr>
   `).join('');
-
-  tbody.querySelectorAll('.btn-remover-presente').forEach(btn=>{
-    btn.addEventListener('click', () => removerPresente(btn.dataset.id));
-  });
-  tbody.querySelectorAll('.btn-editar-presente').forEach(btn=>{
-    btn.addEventListener('click', () => abrirModalEditarPresente(btn.dataset.id));
-  });
+  tbody.querySelectorAll('.btn-remover-presente').forEach(btn => btn.addEventListener('click', () => removerPresente(btn.dataset.id)));
+  tbody.querySelectorAll('.btn-editar-presente').forEach(btn => btn.addEventListener('click', () => abrirModalEditarPresente(btn.dataset.id)));
 }
 
-// ------------------------- ADMIN: EDITAR PRESENTE -------------------------------
 function abrirModalEditarPresente(id){
   const presente = presentes.find(p => p.id === id);
   if(!presente) return;
@@ -1390,12 +1184,6 @@ function abrirModalEditarPresente(id){
         </div>
         <div class="dica">Deixe em branco para manter a foto atual.</div>
       </div>
-      <div class="campo">
-        <label for="ep-preco">Faixa de preço</label>
-        <select id="ep-preco">
-          ${FAIXAS_PRECO.map(f => `<option value="${f.codigo}" ${f.codigo === presente.preco ? 'selected' : ''}>${f.rotulo}</option>`).join('')}
-        </select>
-      </div>
       <div class="modal-botoes">
         <button type="button" class="botao botao-fantasma" id="ep-cancelar">Cancelar</button>
         <button type="submit" class="botao botao-primario">Salvar Alterações</button>
@@ -1410,21 +1198,18 @@ function abrirModalEditarPresente(id){
     try{
       fotoEdicaoDataUrl = await redimensionarImagem(arquivo);
       overlay.querySelector('#ep-foto-preview').src = fotoEdicaoDataUrl;
-    }catch(e){
-      mostrarToast('Não foi possível carregar essa imagem.', 'erro');
-    }
+    }catch(e){ mostrarToast('Não foi possível carregar essa imagem.', 'erro'); }
   });
   overlay.querySelector('#form-editar-presente').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const nome = overlay.querySelector('#ep-nome').value.trim();
     if(!nome){ mostrarToast('Digite o nome do presente.', 'erro'); return; }
-    presente.nome = nome;
-    presente.preco = overlay.querySelector('#ep-preco').value;
-    if(fotoEdicaoDataUrl) presente.foto = fotoEdicaoDataUrl;
-    await gravarChave(CHAVE_PRESENTES, presentes);
+    const atualizacao = { nome };
+    if(fotoEdicaoDataUrl) atualizacao.foto = fotoEdicaoDataUrl;
+    try{
+      await refPresentes.doc(id).update(atualizacao);
+    }catch(e){ console.error(e); mostrarToast('Não foi possível salvar as alterações.', 'erro'); return; }
     fecharModal();
-    preencherTabelaPresentes();
-    preencherTabelaConvidados();
     mostrarToast('Presente atualizado com sucesso!');
   });
 }
@@ -1432,54 +1217,73 @@ function abrirModalEditarPresente(id){
 async function handleAdicionarPresente(ev){
   ev.preventDefault();
   const nome = document.getElementById('np-nome').value.trim();
-  const preco = document.getElementById('np-preco').value;
-
   if(!nome){ mostrarToast('Digite o nome do presente.', 'erro'); return; }
+  const foto = fotoSelecionadaDataUrl || ('https://placehold.co/400x300/8FA9C4/FFFFFF?text=' + encodeURIComponent(nome));
 
-  const foto = fotoSelecionadaDataUrl ||
-    `https://placehold.co/400x300/8FA9C4/FFFFFF?text=${encodeURIComponent(nome || 'Presente')}`;
+  try{
+    const novoId = refPresentes.doc().id;
+    await refPresentes.doc(novoId).set({ nome, foto, reservadoPor:null });
+  }catch(e){ console.error(e); mostrarToast('Não foi possível salvar o presente.', 'erro'); return; }
 
-  presentes.push({ id: 'g' + Date.now(), nome, foto, preco, reservadoPor: null });
-  await gravarChave(CHAVE_PRESENTES, presentes);
-  preencherTabelaPresentes();
-  preencherTabelaConvidados();
   document.getElementById('form-novo-presente').reset();
   fotoSelecionadaDataUrl = null;
   document.getElementById('np-foto-preview').src = 'https://placehold.co/100x100/E7E2D6/7A7369?text=%20';
-  mostrarToast(`"${nome}" foi adicionado à lista de presentes!`);
+  mostrarToast('"' + nome + '" foi adicionado à lista de presentes!');
 }
 
 function removerPresente(id){
   abrirModalConfirmacao('Remover este presente da lista?', async () => {
-    presentes = presentes.filter(p => p.id !== id);
-    await gravarChave(CHAVE_PRESENTES, presentes);
-    preencherTabelaPresentes();
-    preencherTabelaConvidados();
-    mostrarToast('Presente removido.');
+    try{
+      await refPresentes.doc(id).delete();
+      mostrarToast('Presente removido.');
+    }catch(e){ console.error(e); mostrarToast('Não foi possível remover.', 'erro'); }
+  });
+}
+
+function preencherGaleriaAdmin(){
+  const grid = document.getElementById('galeria-admin-grid');
+  if(!grid) return;
+  if(!fotosCasa.length){
+    grid.innerHTML = '<p style="font-size:12.5px;color:var(--tinta-suave);">Nenhuma foto adicionada ainda.</p>';
+    return;
+  }
+  grid.innerHTML = fotosCasa.map(f => `
+    <div class="galeria-admin-item">
+      <img src="${f.dataUrl}" alt="">
+      <button type="button" class="galeria-admin-remover" data-id="${f.id}" title="Remover">×</button>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.galeria-admin-remover').forEach(btn => btn.addEventListener('click', () => removerFotoCasa(btn.dataset.id)));
+}
+
+function removerFotoCasa(id){
+  abrirModalConfirmacao('Remover esta foto da galeria de inspiração?', async () => {
+    try{
+      await refFotosCasa.doc(id).delete();
+      fotosCasa = fotosCasa.filter(f => f.id !== id);
+      preencherGaleriaAdmin();
+      mostrarToast('Foto removida.');
+    }catch(e){ console.error(e); mostrarToast('Não foi possível remover.', 'erro'); }
   });
 }
 
 function exportarCsv(){
-  const cabecalho = ['Nome do Convidado','Presenca','Presente Reservado','Faixa de Preco','Data e Hora da Resposta'];
+  const cabecalho = ['Nome do Convidado','Presenca','Presente(s) Reservado(s)','Data e Hora da Resposta'];
   const linhas = convidados.map(g => {
-    const presente = presentes.find(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
+    const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
     return [
       g.nome,
       g.rsvp === 'sim' ? 'Confirmou' : 'Declinou',
-      presente ? presente.nome : '-',
-      presente ? rotuloFaixa(presente.preco) : '-',
+      meusPresentes.length ? meusPresentes.map(p => p.nome).join('; ') : '-',
       formatarDataHora(g.timestamp)
     ];
   });
-
   const escapeCsv = (v) => {
     const s = String(v ?? '');
-    if(/[",\n;]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    if(/[",\n;]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
     return s;
   };
-
   const csv = [cabecalho, ...linhas].map(l => l.map(escapeCsv).join(';')).join('\r\n');
-  // BOM no início para o Excel reconhecer acentuação corretamente
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1491,10 +1295,10 @@ function exportarCsv(){
   URL.revokeObjectURL(url);
 }
 
-// ------------------------- INICIALIZAÇÃO -------------------------------
 (async function iniciar(){
   await testarAmbienteStorage();
   await carregarDados();
+  iniciarEscutaTempoReal();
   renderEntrada();
 })();
 </script>

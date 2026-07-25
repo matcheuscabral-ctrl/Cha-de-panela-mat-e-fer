@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 :root{
   --azul-serenity:      #8FA9C4;
@@ -604,6 +605,11 @@ function renderEntrada(){
         <p class="subtitulo">${escapeHtml(configuracoes.mensagem)}</p>
       </div>
 
+      <div class="aviso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+        <span>Este site é só para organizar quem vai trazer o quê — <strong>não tem pagamento por aqui</strong>. Você reserva um item da lista e leva ele fisicamente no dia do evento. Simples assim! 💛</span>
+      </div>
+
       <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
 
       <form class="cartao" id="form-entrada">
@@ -988,11 +994,11 @@ async function renderAdmin(){
       <div class="admin-bloco">
         <div class="admin-bloco-topo">
           <h2>Convidados</h2>
-          <button class="botao botao-primario botao-pequeno" id="btn-exportar-csv">Exportar Dados para CSV</button>
+          <button class="botao botao-primario botao-pequeno" id="btn-exportar-csv">Exportar Planilha (Excel)</button>
         </div>
         <div class="tabela-wrap">
           <table class="planilha">
-            <thead><tr><th>Nome do Convidado</th><th>Presença</th><th>Presente(s) Reservado(s)</th><th>Data e Hora da Resposta</th></tr></thead>
+            <thead><tr><th>Nome do Convidado</th><th>Presença</th><th>Presente(s) Reservado(s)</th><th>Data e Hora da Resposta</th><th></th></tr></thead>
             <tbody id="tbody-convidados"></tbody>
           </table>
         </div>
@@ -1124,7 +1130,7 @@ function preencherTabelaConvidados(){
   const tbody = document.getElementById('tbody-convidados');
   if(!tbody) return;
   if(convidados.length === 0){
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--tinta-suave);padding:24px;">Nenhuma resposta recebida ainda.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--tinta-suave);padding:24px;">Nenhuma resposta recebida ainda.</td></tr>';
     return;
   }
   const linhas = [...convidados]
@@ -1139,11 +1145,78 @@ function preencherTabelaConvidados(){
           <td>${tagPresenca}</td>
           <td>${nomesPresentes}</td>
           <td>${formatarDataHora(g.timestamp)}</td>
+          <td style="white-space:nowrap;">
+            <button class="botao botao-fantasma botao-pequeno btn-editar-convidado" data-id="${g.id}">Editar</button>
+            <button class="botao botao-fantasma botao-pequeno btn-remover-convidado" data-id="${g.id}">Remover</button>
+          </td>
         </tr>
       `;
     }).join('');
   tbody.innerHTML = linhas;
+  tbody.querySelectorAll('.btn-editar-convidado').forEach(btn => btn.addEventListener('click', () => abrirModalEditarConvidado(btn.dataset.id)));
+  tbody.querySelectorAll('.btn-remover-convidado').forEach(btn => btn.addEventListener('click', () => removerConvidadoAdmin(btn.dataset.id)));
 }
+
+// Permite ao administrador corrigir o nome de um convidado (ex.: erro de
+// digitação, entradas de teste). Se esse convidado já tiver presentes
+// reservados, os vínculos são atualizados junto para o novo nome.
+function abrirModalEditarConvidado(id){
+  const convidado = convidados.find(c => c.id === id);
+  if(!convidado) return;
+
+  const overlay = abrirModal(`
+    <h3>Editar convidado</h3>
+    <form id="form-editar-convidado">
+      <div class="campo">
+        <label for="ec-nome">Nome completo</label>
+        <input type="text" id="ec-nome" value="${escapeHtml(convidado.nome)}" required>
+      </div>
+      <div class="modal-botoes">
+        <button type="button" class="botao botao-fantasma" id="ec-cancelar">Cancelar</button>
+        <button type="submit" class="botao botao-primario">Salvar</button>
+      </div>
+    </form>
+  `);
+
+  overlay.querySelector('#ec-cancelar').addEventListener('click', fecharModal);
+  overlay.querySelector('#form-editar-convidado').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const novoNome = overlay.querySelector('#ec-nome').value.trim();
+    if(!novoNome){ mostrarToast('Digite um nome.', 'erro'); return; }
+
+    try{
+      await refConvidados.doc(id).update({ nome: novoNome });
+      // Mantém os presentes já reservados por essa pessoa vinculados ao novo nome
+      const presentesDela = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(convidado.nome));
+      if(presentesDela.length){
+        const lote = db.batch();
+        presentesDela.forEach(p => lote.update(refPresentes.doc(p.id), { reservadoPor: novoNome }));
+        await lote.commit();
+      }
+    }catch(e){
+      console.error(e);
+      mostrarToast('Não foi possível salvar as alterações.', 'erro');
+      return;
+    }
+    fecharModal();
+    mostrarToast('Convidado atualizado com sucesso!');
+  });
+}
+
+function removerConvidadoAdmin(id){
+  const convidado = convidados.find(c => c.id === id);
+  if(!convidado) return;
+  abrirModalConfirmacao(`Remover "${convidado.nome}" da lista de convidados? Isso não libera automaticamente presentes já reservados por essa pessoa — se necessário, libere-os separadamente na tabela de presentes.`, async () => {
+    try{
+      await refConvidados.doc(id).delete();
+      mostrarToast('Convidado removido.');
+    }catch(e){
+      console.error(e);
+      mostrarToast('Não foi possível remover.', 'erro');
+    }
+  });
+}
+
 
 function preencherTabelaPresentes(){
   const tbody = document.getElementById('tbody-presentes');
@@ -1169,6 +1242,8 @@ function preencherTabelaPresentes(){
   tbody.querySelectorAll('.btn-liberar-presente').forEach(btn => btn.addEventListener('click', () => liberarReservaAdmin(btn.dataset.id)));
 }
 
+// Permite ao administrador cancelar a reserva de qualquer convidado
+// (ex.: a pessoa desistiu de trazer o presente, ou pediu para trocar).
 function liberarReservaAdmin(id){
   const presente = presentes.find(p => p.id === id);
   if(!presente) return;
@@ -1187,6 +1262,7 @@ function liberarReservaAdmin(id){
     }
   });
 }
+
 
 function abrirModalEditarPresente(id){
   const presente = presentes.find(p => p.id === id);
@@ -1291,28 +1367,104 @@ function removerFotoCasa(id){
   });
 }
 
-function exportarCsv(){
-  const cabecalho = ['Nome do Convidado','Presenca','Presente(s) Reservado(s)','Data e Hora da Resposta'];
-  const linhas = convidados.map(g => {
-    const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
-    return [
-      g.nome,
-      g.rsvp === 'sim' ? 'Confirmou' : 'Declinou',
-      meusPresentes.length ? meusPresentes.map(p => p.nome).join('; ') : '-',
-      formatarDataHora(g.timestamp)
-    ];
+async function exportarCsv(){
+  if(typeof ExcelJS === 'undefined'){
+    mostrarToast('Não foi possível carregar o gerador de planilha. Verifique sua conexão e tente de novo.', 'erro');
+    return;
+  }
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Chá de Panela';
+  wb.created = new Date();
+
+  const ws = wb.addWorksheet('Convidados', {
+    views: [{ state: 'frozen', ySplit: 3 }]
   });
-  const escapeCsv = (v) => {
-    const s = String(v ?? '');
-    if(/[",\n;]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
-    return s;
-  };
-  const csv = [cabecalho, ...linhas].map(l => l.map(escapeCsv).join(';')).join('\r\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+
+  ws.columns = [
+    { key: 'nome', width: 28 },
+    { key: 'presenca', width: 16 },
+    { key: 'presentes', width: 42 },
+    { key: 'data', width: 22 },
+  ];
+
+  ws.mergeCells('A1:D1');
+  const tituloCell = ws.getCell('A1');
+  tituloCell.value = `Chá de Panela — ${NOIVOS.ela} & ${NOIVOS.ele}`;
+  tituloCell.font = { name: 'Georgia', size: 16, bold: true, color: { argb: 'FF46403A' } };
+  tituloCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  tituloCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF9F8F3' } };
+  ws.getRow(1).height = 30;
+
+  ws.mergeCells('A2:D2');
+  const subCell = ws.getCell('A2');
+  subCell.value = configuracoes.dataEvento;
+  subCell.font = { name: 'Calibri', size: 11, italic: true, color: { argb: 'FF7A7369' } };
+  subCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  subCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF9F8F3' } };
+  ws.getRow(2).height = 20;
+
+  const cabecalhos = ['Nome do Convidado', 'Presença', 'Presente(s) Reservado(s)', 'Data e Hora da Resposta'];
+  const headerRow = ws.getRow(3);
+  cabecalhos.forEach((titulo, i) => {
+    const cell = headerRow.getCell(i + 1);
+    cell.value = titulo;
+    cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF8FA9C4' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.border = { top:{style:'thin',color:{argb:'FF6C8AAB'}}, bottom: { style: 'medium', color: { argb: 'FF6C8AAB' } } };
+  });
+  headerRow.height = 24;
+
+  const linhasOrdenadas = [...convidados].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  if(linhasOrdenadas.length === 0){
+    ws.mergeCells('A4:D4');
+    const vazioCell = ws.getCell('A4');
+    vazioCell.value = 'Nenhuma resposta recebida ainda.';
+    vazioCell.font = { name: 'Calibri', size: 11, italic: true, color: { argb: 'FF7A7369' } };
+    vazioCell.alignment = { horizontal: 'center', vertical: 'middle' };
+  }else{
+    linhasOrdenadas.forEach((g, idx) => {
+      const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(g.nome));
+      const row = ws.addRow({
+        nome: g.nome,
+        presenca: g.rsvp === 'sim' ? 'Confirmou' : 'Declinou',
+        presentes: meusPresentes.length ? meusPresentes.map(p => p.nome).join(', ') : '—',
+        data: formatarDataHora(g.timestamp)
+      });
+
+      const corFundo = idx % 2 === 0 ? 'FFFFFFFF' : 'FFF9F8F3';
+      row.eachCell({ includeEmpty: true }, cell => {
+        cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF46403A' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: corFundo } };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE7E2D6' } } };
+        cell.alignment = { vertical: 'middle', wrapText: true };
+      });
+
+      const presencaCell = row.getCell(2);
+      presencaCell.font = {
+        name: 'Calibri', size: 11, bold: true,
+        color: { argb: g.rsvp === 'sim' ? 'FF6C8AAB' : 'FF7A7369' }
+      };
+      presencaCell.alignment = { horizontal: 'center', vertical: 'middle' };
+      presencaCell.fill = {
+        type: 'pattern', pattern: 'solid',
+        fgColor: { argb: g.rsvp === 'sim' ? 'FFDCE7F0' : 'FFEDEAE4' }
+      };
+
+      row.height = 20;
+    });
+  }
+
+  ws.autoFilter = { from: 'A3', to: 'D3' };
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'cha_de_panela_convidados.csv';
+  a.download = 'cha_de_panela_convidados.xlsx';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

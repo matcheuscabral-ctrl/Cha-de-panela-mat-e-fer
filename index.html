@@ -48,7 +48,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   outline:2px solid var(--azul-serenity-esc);
   outline-offset:2px;
 }
-  
+
 .divisor-floral{
   display:flex;align-items:center;justify-content:center;gap:14px;
   margin:22px 0;color:var(--rosa-quartzo-esc);
@@ -677,16 +677,19 @@ function renderObrigadoNaoVai(){
       ${bannerAmbiente()}
       <div class="hero">
         <div class="monograma">${NOIVOS.ela} &amp; ${NOIVOS.ele}</div>
-        <h1>Sentiremos sua falta, <em>${escapeHtml(nomeConvidadoAtual)}</em></h1>
+        <h1>Que pena, <em>${escapeHtml(nomeConvidadoAtual)}</em>! 💌</h1>
         <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
-        <p class="subtitulo">Obrigado por nos avisar! Sua resposta foi registrada. Esperamos celebrar com você em outro momento.</p>
+        <p class="subtitulo">Vamos sentir sua falta nesse dia tão especial! Sua resposta já foi registrada. Mas se mesmo assim você quiser nos ajudar com um carinho para a nossa nova casa, é só dar uma olhadinha na lista abaixo — fica ao seu critério. 💛</p>
       </div>
       <div class="cartao" style="text-align:center;">
+        <button type="button" class="botao botao-primario" id="btn-ver-lista-mesmo-assim">Ver Lista de Presentes</button>
+        <div style="height:10px;"></div>
         <button type="button" class="botao botao-fantasma" id="btn-voltar">Voltar ao início</button>
       </div>
       <div class="rodape-admin"><button type="button" id="btn-abrir-admin">Área administrativa</button></div>
     </div>
   `;
+  document.getElementById('btn-ver-lista-mesmo-assim').addEventListener('click', renderListaPresentes);
   document.getElementById('btn-voltar').addEventListener('click', renderEntrada);
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
 }
@@ -1155,6 +1158,7 @@ function preencherTabelaPresentes(){
       </td>
       <td>${p.reservadoPor ? '<span class="tag tag-nao">Reservado por ' + escapeHtml(p.reservadoPor) + '</span>' : '<span class="tag tag-livre">Disponível</span>'}</td>
       <td style="white-space:nowrap;">
+        ${p.reservadoPor ? `<button class="botao botao-fantasma botao-pequeno btn-liberar-presente" data-id="${p.id}">Liberar Reserva</button>` : ''}
         <button class="botao botao-fantasma botao-pequeno btn-editar-presente" data-id="${p.id}">Editar</button>
         <button class="botao botao-fantasma botao-pequeno btn-remover-presente" data-id="${p.id}">Remover</button>
       </td>
@@ -1162,6 +1166,26 @@ function preencherTabelaPresentes(){
   `).join('');
   tbody.querySelectorAll('.btn-remover-presente').forEach(btn => btn.addEventListener('click', () => removerPresente(btn.dataset.id)));
   tbody.querySelectorAll('.btn-editar-presente').forEach(btn => btn.addEventListener('click', () => abrirModalEditarPresente(btn.dataset.id)));
+  tbody.querySelectorAll('.btn-liberar-presente').forEach(btn => btn.addEventListener('click', () => liberarReservaAdmin(btn.dataset.id)));
+}
+
+function liberarReservaAdmin(id){
+  const presente = presentes.find(p => p.id === id);
+  if(!presente) return;
+  const nomeAtual = presente.reservadoPor;
+  abrirModalConfirmacao(`Liberar a reserva de "${presente.nome}" (atualmente reservado por ${nomeAtual})?`, async () => {
+    try{
+      await refPresentes.doc(id).update({ reservadoPor: null });
+      const p = presentes.find(p => p.id === id);
+      if(p) p.reservadoPor = null;
+      preencherTabelaPresentes();
+      preencherTabelaConvidados();
+      mostrarToast(`Reserva de "${presente.nome}" liberada.`);
+    }catch(e){
+      console.error(e);
+      mostrarToast('Não foi possível liberar a reserva agora.', 'erro');
+    }
+  });
 }
 
 function abrirModalEditarPresente(id){

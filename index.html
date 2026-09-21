@@ -136,6 +136,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .campo input:focus, .campo select:focus, .campo textarea:focus{border-color:var(--azul-serenity);}
 .campo .dica{font-size:11.5px;color:var(--tinta-suave);margin-top:6px;}
 
+.lista-resumo-presentes{display:flex;flex-direction:column;}
+.linha-resumo-presente{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid var(--linha);
+  font-size:14.5px;
+}
+.linha-resumo-presente:last-child{border-bottom:none;}
+.linha-resumo-presente .btn-cancelar-resumo{flex-shrink:0;}
+
 .radio-grupo{display:flex;flex-direction:column;gap:10px;}
 .radio-opcao{
   display:flex;align-items:center;gap:12px;
@@ -388,9 +398,8 @@ try{
 }
 
 const CONFIG_PADRAO = {
-  dataEvento: 'Data a confirmar em breve',
-  mensagem: 'Confirme sua presença e, se quiser, escolha com carinho um presente para nos ajudar a montar nosso novo lar.',
-  linkPinterest: ''
+  dataEvento: '11 de Outubro de 2026',
+  mensagem: 'Confirme sua presença e, se quiser, escolha com carinho um presente para nos ajudar a montar nosso novo lar.'
 };
 let configuracoes = { ...CONFIG_PADRAO };
 
@@ -532,7 +541,12 @@ function slugConvidado(nome){
 }
 
 async function carregarDados(){
-  if(refPresentes){
+  // As quatro buscas abaixo não dependem umas das outras, então rodam em
+  // paralelo (Promise.all) em vez de uma esperar a outra terminar — isso
+  // corta bastante o tempo de carregamento inicial, especialmente em
+  // conexões de celular mais lentas.
+  const tarefaPresentes = (async () => {
+    if(!refPresentes) return;
     try{
       const snap = await refPresentes.get();
       if(!snap.empty){
@@ -547,29 +561,35 @@ async function carregarDados(){
       console.error('Falha ao carregar presentes:', e);
       presentes = PRESENTES_PADRAO.map(p => ({ ...p, reservadoPor:null }));
     }
-  }
+  })();
 
-  if(refConvidados){
+  const tarefaConvidados = (async () => {
+    if(!refConvidados) return;
     try{
       const snap = await refConvidados.get();
       convidados = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     }catch(e){ console.error('Falha ao carregar convidados:', e); convidados = []; }
-  }
+  })();
 
-  if(refFotosCasa){
+  const tarefaFotos = (async () => {
+    if(!refFotosCasa) return;
     try{
       const snap = await refFotosCasa.get();
       fotosCasa = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     }catch(e){ console.error('Falha ao carregar galeria:', e); fotosCasa = []; }
-  }
+  })();
 
-  const cfg = await lerChave(CHAVE_CONFIG);
-  if(cfg && typeof cfg === 'object'){
-    configuracoes = { ...CONFIG_PADRAO, ...cfg };
-  }else{
-    configuracoes = { ...CONFIG_PADRAO };
-    await gravarChave(CHAVE_CONFIG, configuracoes);
-  }
+  const tarefaConfig = (async () => {
+    const cfg = await lerChave(CHAVE_CONFIG);
+    if(cfg && typeof cfg === 'object'){
+      configuracoes = { ...CONFIG_PADRAO, ...cfg };
+    }else{
+      configuracoes = { ...CONFIG_PADRAO };
+      await gravarChave(CHAVE_CONFIG, configuracoes);
+    }
+  })();
+
+  await Promise.all([tarefaPresentes, tarefaConvidados, tarefaFotos, tarefaConfig]);
 }
 
 function iniciarEscutaTempoReal(){
@@ -781,14 +801,11 @@ function renderObrigadoNaoVai(){
 
 function renderGaleriaCasa(){
   telaAtual = 'galeria-casa';
-  const semConteudo = fotosCasa.length === 0 && !configuracoes.linkPinterest;
+  const semConteudo = fotosCasa.length === 0;
   if(semConteudo){ renderListaPresentes(); return; }
 
   const app = document.getElementById('app');
   const fotosHtml = fotosCasa.map(f => `<div class="galeria-item"><img src="${f.dataUrl}" alt="Inspiração para a casa" loading="lazy"></div>`).join('');
-  const linkHtml = configuracoes.linkPinterest
-    ? `<a class="botao botao-secundario" href="${escapeHtml(configuracoes.linkPinterest)}" target="_blank" rel="noopener noreferrer">Ver pasta completa no Pinterest</a><div style="height:10px;"></div>`
-    : '';
 
   app.innerHTML = `
     <div class="pagina-convidado fade-in">
@@ -803,7 +820,6 @@ function renderGaleriaCasa(){
       ${fotosHtml ? `<div class="galeria-grid">${fotosHtml}</div>` : ''}
 
       <div class="cartao" style="text-align:center;">
-        ${linkHtml}
         <button type="button" class="botao botao-primario" id="btn-ver-presentes">Ver Lista de Presentes</button>
       </div>
 
@@ -985,7 +1001,12 @@ function renderConfirmacaoFinal(){
   telaAtual = 'confirmacao-final';
   const meusPresentes = presentes.filter(p => normalizarNome(p.reservadoPor) === normalizarNome(nomeConvidadoAtual));
   const listaHtml = meusPresentes.length
-    ? '<ul style="text-align:left;margin:0;padding-left:20px;">' + meusPresentes.map(p => '<li>' + escapeHtml(p.nome) + '</li>').join('') + '</ul>'
+    ? '<div class="lista-resumo-presentes">' + meusPresentes.map(p => `
+        <div class="linha-resumo-presente">
+          <span>${escapeHtml(p.nome)}</span>
+          <button type="button" class="botao botao-fantasma botao-pequeno btn-cancelar-resumo" data-id="${p.id}">Cancelar</button>
+        </div>
+      `).join('') + '</div>'
     : '<p class="subtitulo" style="margin:0;">Você não reservou nenhum presente — e tudo bem! Sua presença já é o nosso maior presente.</p>';
 
   const app = document.getElementById('app');
@@ -996,7 +1017,7 @@ function renderConfirmacaoFinal(){
         <div class="monograma">${NOIVOS.ela} &amp; ${NOIVOS.ele}</div>
         <h1>Obrigado, <em>${escapeHtml(nomeConvidadoAtual)}</em>!</h1>
         <div class="divisor-floral"><span class="traco"></span>${iconeFloral()}<span class="traco"></span></div>
-        <p class="subtitulo">Confira abaixo o resumo da sua resposta.</p>
+        <p class="subtitulo">Confira abaixo o resumo da sua resposta. Se quiser trocar algum presente, é só cancelar aqui mesmo e escolher outro na lista.</p>
       </div>
 
       <div class="cartao">
@@ -1019,6 +1040,16 @@ function renderConfirmacaoFinal(){
   document.getElementById('btn-finalizar-salvar').addEventListener('click', renderDespedidaFinal);
   document.getElementById('btn-voltar-lista').addEventListener('click', renderListaPresentes);
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
+  app.querySelectorAll('.btn-cancelar-resumo').forEach(btn => {
+    btn.addEventListener('click', () => cancelarNoResumo(btn.dataset.id));
+  });
+}
+
+// Cancela a reserva de um item direto na tela de resumo, e já atualiza a
+// lista ali mesmo (sem precisar voltar pra tela anterior).
+async function cancelarNoResumo(id){
+  await cancelarReserva(id);
+  renderConfirmacaoFinal();
 }
 
 function renderDespedidaFinal(){
@@ -1146,20 +1177,16 @@ async function renderAdmin(){
       </div>
 
       <div class="admin-bloco">
-        <div class="admin-bloco-topo"><h2>Mensagem, data e inspiração do convite</h2></div>
+        <div class="admin-bloco-topo"><h2>Mensagem e data do convite</h2></div>
         <form id="form-config">
           <div class="campo">
             <label for="cfg-data">Data do evento (texto livre)</label>
-            <input type="text" id="cfg-data" value="${escapeHtml(configuracoes.dataEvento)}" placeholder="Ex.: 29 de Novembro de 2026">
+            <input type="text" id="cfg-data" value="${escapeHtml(configuracoes.dataEvento)}" placeholder="Ex.: 11 de Outubro de 2026">
             <div class="dica">Ainda sem data definida? Deixe algo como "Data a confirmar em breve".</div>
           </div>
           <div class="campo">
             <label for="cfg-mensagem">Mensagem de boas-vindas</label>
             <textarea id="cfg-mensagem">${escapeHtml(configuracoes.mensagem)}</textarea>
-          </div>
-          <div class="campo">
-            <label for="cfg-pinterest">Link da pasta do Pinterest (inspiração para a casa)</label>
-            <input type="url" id="cfg-pinterest" value="${escapeHtml(configuracoes.linkPinterest || '')}" placeholder="https://www.pinterest.com/...">
           </div>
           <button type="submit" class="botao botao-primario botao-pequeno" style="width:auto;">Salvar Configurações</button>
         </form>
@@ -1238,8 +1265,7 @@ async function handleSalvarConfig(ev){
   ev.preventDefault();
   const dataEvento = document.getElementById('cfg-data').value.trim() || CONFIG_PADRAO.dataEvento;
   const mensagem = document.getElementById('cfg-mensagem').value.trim() || CONFIG_PADRAO.mensagem;
-  const linkPinterest = document.getElementById('cfg-pinterest').value.trim();
-  configuracoes = { dataEvento, mensagem, linkPinterest };
+  configuracoes = { dataEvento, mensagem };
   await gravarChave(CHAVE_CONFIG, configuracoes);
   mostrarToast('Configurações salvas! Já valem para todo mundo que abrir o link.');
 }
@@ -1675,10 +1701,17 @@ async function exportarCsv(){
 }
 
 (async function iniciar(){
-  await testarAmbienteStorage();
-  await carregarDados();
-  iniciarEscutaTempoReal();
+  // Mostra a tela inicial imediatamente (com os valores padrão) em vez de
+  // deixar a pessoa olhando pra uma tela em branco enquanto os dados
+  // carregam do Firestore. O teste de conexão e o carregamento dos dados
+  // rodam em paralelo, e a tela é redesenhada assim que tudo chegar —
+  // isso é o que estava fazendo o link demorar tanto pra abrir: antes,
+  // cada uma dessas buscas esperava a anterior terminar, uma atrás da
+  // outra, antes de mostrar qualquer coisa na tela.
   renderEntrada();
+  await Promise.all([testarAmbienteStorage(), carregarDados()]);
+  iniciarEscutaTempoReal();
+  if(telaAtual === 'entrada') renderEntrada();
 })();
 
 });

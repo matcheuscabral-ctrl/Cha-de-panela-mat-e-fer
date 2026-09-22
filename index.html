@@ -482,6 +482,7 @@ let presentes = [];
 let convidados = [];
 let fotosCasa = [];
 let nomeConvidadoAtual = null;
+let rsvpConvidadoAtual = null;
 let telaAtual = 'entrada';
 let fotoSelecionadaDataUrl = null;
 let fotoEdicaoDataUrl = null;
@@ -538,6 +539,29 @@ function slugConvidado(nome){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-z0-9]+/g,'-').replace(/(^-+|-+$)/g,'');
   return base || ('convidado-' + Date.now());
+}
+
+// Salva (ou re-salva) a resposta do convidado atual no Firestore. Usa
+// merge:true para n\u00e3o apagar campos existentes, e \u00e9 chamada em v\u00e1rios
+// pontos do fluxo do convidado (n\u00e3o s\u00f3 na tela inicial) para garantir que,
+// mesmo que a grava\u00e7\u00e3o original tenha falhado silenciosamente (ex.: uma
+// instabilidade de rede naquele instante), o registro seja recriado
+// automaticamente assim que a pessoa reservar um presente ou finalizar a
+// resposta \u2014 evitando o problema de um presente aparecer reservado no
+// nome de algu\u00e9m que n\u00e3o aparece na lista de convidados.
+async function salvarRespostaConvidado(){
+  if(!refConvidados || !nomeConvidadoAtual || !rsvpConvidadoAtual) return false;
+  try{
+    await refConvidados.doc(slugConvidado(nomeConvidadoAtual)).set({
+      nome: nomeConvidadoAtual,
+      rsvp: rsvpConvidadoAtual,
+      timestamp: new Date().toISOString()
+    }, { merge: true });
+    return true;
+  }catch(e){
+    console.error('Falha ao salvar resposta do convidado:', e);
+    return false;
+  }
 }
 
 async function carregarDados(){
@@ -756,15 +780,12 @@ async function handleSubmitEntrada(ev){
   if(!rsvpEl){ mostrarToast('Por favor, selecione se você vai comparecer.', 'erro'); return; }
   const rsvp = rsvpEl.value;
   nomeConvidadoAtual = nome;
+  rsvpConvidadoAtual = rsvp;
 
-  if(refConvidados){
-    try{
-      await refConvidados.doc(slugConvidado(nome)).set({ nome, rsvp, timestamp: new Date().toISOString() });
-    }catch(e){
-      console.error('Falha ao salvar resposta:', e);
-      mostrarToast('Não foi possível salvar sua resposta agora. Tente novamente.', 'erro');
-      return;
-    }
+  const salvou = await salvarRespostaConvidado();
+  if(!salvou){
+    mostrarToast('Não foi possível salvar sua resposta agora. Tente novamente.', 'erro');
+    return;
   }
 
   if(rsvp === 'sim'){
@@ -863,7 +884,7 @@ function renderListaPresentes(){
   desenharGradePresentes();
 
   document.getElementById('btn-finalizar-resposta').addEventListener('click', renderConfirmacaoFinal);
-  document.getElementById('btn-trocar-pessoa').addEventListener('click', () => { nomeConvidadoAtual = null; renderEntrada(); });
+  document.getElementById('btn-trocar-pessoa').addEventListener('click', () => { nomeConvidadoAtual = null; rsvpConvidadoAtual = null; renderEntrada(); });
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
 }
 
@@ -960,6 +981,11 @@ async function reservarPresente(id){
   const p = presentes.find(p => p.id === id);
   if(p) p.reservadoPor = nomeConvidadoAtual;
   desenharGradePresentes();
+  // Garante que o registro do convidado exista de fato no Firestore —
+  // se por algum motivo a gravação inicial (na tela de entrada) não tiver
+  // sido concluída, essa chamada recria o registro agora, evitando um
+  // presente "órfão" (reservado em nome de alguém que não está na lista).
+  salvarRespostaConvidado();
   mostrarModalPosReserva(nomeGuardado || (p ? p.nome : ''));
 }
 
@@ -1037,7 +1063,10 @@ function renderConfirmacaoFinal(){
     </div>
   `;
 
-  document.getElementById('btn-finalizar-salvar').addEventListener('click', renderDespedidaFinal);
+  document.getElementById('btn-finalizar-salvar').addEventListener('click', async () => {
+    await salvarRespostaConvidado();
+    renderDespedidaFinal();
+  });
   document.getElementById('btn-voltar-lista').addEventListener('click', renderListaPresentes);
   document.getElementById('btn-abrir-admin').addEventListener('click', abrirLoginAdmin);
   app.querySelectorAll('.btn-cancelar-resumo').forEach(btn => {
